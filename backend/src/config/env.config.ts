@@ -21,7 +21,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(10),
 
   EMAIL: z.email("Invalid email address").transform((val) => val.trim().toLowerCase()),
-  EMAIL_PASSWORD: z.string().min(16),
+  EMAIL_PASSWORD: z.string().length(16, "Must be exactly 16 characters"),
 });
 
 // Validate env
