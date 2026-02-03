@@ -1,53 +1,65 @@
-# Job Portal
+# PHASE-WISE DEVELOPMENT PLAN
 
-This is simple Job Portal application built using Express ts and React js
+## Phase 0: Project Foundation
 
-## Required Features
+### 🎯 Goal
 
-- The portal should allow sign ups for new recruiters and candidates.
+Create a stable skeleton that never changes.
 
-- The existing users (both recruiters and candidates) should be able to sign in.
+### Steps
 
-- The sign up process should be different for recruiters and candidates, asking relevant information depending upon the role.
+1. Initialize project
 
-- The sign up can be email and password enabled, but sign in can also be done using email OTP.
+    ```bash
+    npm init -y
+    ```
 
-- There should be different dashboards for recruiters and candidates (landing page).
+2. Setup TypeScript
 
-- The recruiters should be able to create new postings allowing them to enter details like job title, eligibility, experience required, job description, etc.
+3. Setup Express
 
-- The candidates should be able to apply to job postings.
+4. Setup folder structure (empty modules)
 
-- The recruiter should have a separate dashboard to shortlist candidates who have applied, and mark the candidates as shortlisted/not shortlisted.
+5. Setup:
 
-- The candidates should have a separate dashboard to get a list of applications submitted so far along with the current status of their application.
+    - env loader
 
-## Backend
+    - DB connection
 
-### Database Entities
+    - global error handler
 
-1. Users
+    - response formatter
 
-2. Recruiter Specific Details (One to One Relationship with Users)
+    - logger
 
-3. Candidate Specific Details (One to One Relationship with Users)
+### Output after Phase 0
 
-4. Job Postings (One to Many Relationship with Users)
+```bash
+src/
+├── config/
+├── loaders/
+├── common/
+├── middlewares/
+├── routes/
+└── modules/
+```
 
-5. Job Applications (Many to Many Relationship between Job Postings ans Users)
+🚨 No business logic yet.
 
-### APIs
+### Step 5 Setup
 
-1. Sign Up (for both Recruiters & Candidates)
+1. `config/env.config.ts` (FIRST)
 
-2. Login via Password
+    **Purpose**\
+    - Load env
+    - Validate env
+    - Export config
 
-3. Request OTP on Email for Login
+What to implement (minimum)
 
-4. Resend OTP
+dotenv.config()
 
-5. Verify OTP
+Throw error if critical env missing
 
-6. Create Job Postings (for Recruiters)
-
-7. .
+🚫 No feature flags
+🚫 No role logic
