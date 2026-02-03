@@ -4,7 +4,7 @@ import { z, ZodError } from "zod";
 const NODE_ENV = process.env.NODE_ENV || "staging";
 
 // Load env
-dotenv.config({ path: `../environments/.env.${process.env.NODE_ENV}` })
+dotenv.config({ path: `../environments/.env.${NODE_ENV}` })
 
 // Define env schema
 const envSchema = z.object({
