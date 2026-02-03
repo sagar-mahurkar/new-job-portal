@@ -1,10 +1,16 @@
 import dotenv from "dotenv";
 import { z, ZodError } from "zod";
+import path from "path";
 
 const NODE_ENV = process.env.NODE_ENV || "staging";
 
+const envPath = path.resolve(
+  process.cwd(),
+  `../environments/.env.${NODE_ENV}`
+);
+
 // Load env
-dotenv.config({ path: `../environments/.env.${NODE_ENV}` })
+dotenv.config({ path: envPath });
 
 // Define env schema
 const envSchema = z.object({
@@ -20,8 +26,8 @@ const envSchema = z.object({
 
   JWT_SECRET: z.string().min(10),
 
-  EMAIL: z.email("Invalid email address").transform((val) => val.trim().toLowerCase()),
-  EMAIL_PASSWORD: z.string().length(16, "Must be exactly 16 characters"),
+  EMAIL: z.email("Invalid email address").transform((val) => val.trim().toLowerCase()).optional(),
+  EMAIL_PASSWORD: z.string().length(16, "Must be exactly 16 characters").optional(),
 });
 
 // Validate env
