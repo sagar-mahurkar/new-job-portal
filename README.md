@@ -32,20 +32,6 @@ Create a stable skeleton that never changes.
 
     - logger
 
-### Output after Phase 0
-
-```bash
-src/
-├── config/
-├── loaders/
-├── common/
-├── middlewares/
-├── routes/
-└── modules/
-```
-
-🚨 No business logic yet.
-
 ### Step 5 Setup
 
 1. `config/env.config.ts` (FIRST)
@@ -148,3 +134,17 @@ src/
     - DB loader call
 
     🚫 No routes yet (except /health)
+
+### Output after Phase 0
+
+```bash
+src/
+├── config/
+├── loaders/
+├── common/
+├── middlewares/
+├── routes/
+└── modules/
+```
+
+🚨 No business logic yet.
