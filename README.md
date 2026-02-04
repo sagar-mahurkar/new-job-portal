@@ -138,13 +138,39 @@ Create a stable skeleton that never changes.
 ### Output after Phase 0
 
 ```bash
-src/
-├── config/
-├── loaders/
-├── common/
-├── middlewares/
-├── routes/
-└── modules/
+.
+├── backend
+│   ├── package.json
+│   ├── package-lock.json
+│   ├── src
+│   │   ├── common
+│   │   │   ├── constants
+│   │   │   │   └── http.codes.ts
+│   │   │   ├── errors
+│   │   │   │   └── AppError.ts
+│   │   │   └── utils
+│   │   │       └── response.util.ts
+│   │   ├── config
+│   │   │   ├── database.config.ts
+│   │   │   ├── env.config.ts
+│   │   │   └── logger.config.ts
+│   │   ├── index.ts
+│   │   ├── loaders
+│   │   │   └── db.loader.ts
+│   │   ├── middlewares
+│   │   │   └── error.middleware.ts
+│   │   ├── modules
+│   │   │   ├── application
+│   │   │   ├── auth
+│   │   │   ├── candidate
+│   │   │   ├── job
+│   │   │   ├── recruiter
+│   │   │   └── user
+│   │   ├── routes
+│   │   └── tests
+│   └── tsconfig.json
+├── environments
+└── README.md
 ```
 
 🚨 No business logic yet.
