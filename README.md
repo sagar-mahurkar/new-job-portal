@@ -16,9 +16,42 @@ Create a stable skeleton that never changes.
 
 2. Setup TypeScript
 
+    ```bash
+    tsc --init
+    ```
+
 3. Setup Express
 
+    ```bash
+    npm install bcrypt cors dotdev express jsonwebtoken nodemailer pg typeorm zod
+    ```
+
+    ```bash
+    npm install --save-dev @types/express @types/node nodemon ts-node typescript
+    ```
+
 4. Setup folder structure (empty modules)
+
+    ```bash
+    .
+    ├── common
+    │   ├── constants
+    │   ├── errors
+    │   └── utils
+    ├── config
+    ├── index.ts
+    ├── loaders
+    ├── middlewares
+    ├── modules
+    │   ├── application
+    │   ├── auth
+    │   ├── candidate
+    │   ├── job
+    │   ├── recruiter
+    │   └── user
+    ├── routes
+    └── tests
+    ```
 
 5. Setup:
 
