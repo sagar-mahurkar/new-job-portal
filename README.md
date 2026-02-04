@@ -2,6 +2,10 @@
 
 ## Phase 0: Project Foundation
 
+- Phase 0 code is considered infrastructure.
+
+- Once stabilized, it should rarely change and should not contain business logic.
+
 ### 🎯 Goal
 
 Create a stable skeleton that never changes.
@@ -23,7 +27,7 @@ Create a stable skeleton that never changes.
 3. Setup Express
 
     ```bash
-    npm install bcrypt cors dotdev express jsonwebtoken nodemailer pg typeorm zod
+    npm install bcrypt cors dotenv express jsonwebtoken nodemailer pg typeorm zod
     ```
 
     ```bash
@@ -78,6 +82,23 @@ Create a stable skeleton that never changes.
     - `dotenv.config()`
     - Throw error if critical env missing
 
+    ```typescript
+    // Imports
+
+    // Bootstrap NODE_ENV
+
+    // Load env
+
+    // Define env schema
+
+    // Validate env
+
+    // Throw error if critical env missing
+
+    // Export config
+
+    ```
+
     🚫 No feature flags
 
     🚫 No role logic
@@ -92,6 +113,15 @@ Create a stable skeleton that never changes.
     - Connection options
     - Logging toggle
 
+    ```typescript
+    // Imports
+
+    // Create DB Config as DataSourceOptions
+
+    // Instantiate and Export DataSource Object
+
+    ```
+
     🚫 No repositories
 
     🚫 No entities
@@ -105,6 +135,19 @@ Create a stable skeleton that never changes.
     - initialize()
     - Proper logging on success/failure
 
+    ```typescript
+    // Imports
+
+    // Declare and Export initDB (async function)
+
+    // Check if db is already initialized
+
+    // Initiate db
+
+    // Log error if operation fails
+
+    ```
+
     🚫 No queries
 
 4. `config/logger.config.ts`
@@ -115,6 +158,19 @@ Create a stable skeleton that never changes.
     **What to implement**
     - info, error, warn
     - Wrapper around console (for now)
+
+    ```typescript
+    // Imports
+
+    // Define type LogLevel - info, warn, error, debug
+
+    // Define isProductionLike flag
+
+    // Create log formatter 
+
+    // Export logger object
+
+    ```
 
     🚫 No request logs yet
 
@@ -128,6 +184,15 @@ Create a stable skeleton that never changes.
     - statusCode
     - `isOperational` flag
 
+    ```typescript
+    // Export class AppError which extends Error class
+
+    // ReadOnly variables - statusCode, isOperational
+
+    // Capture Stack trace
+
+    ```
+
     🚫 No HTTP handling here
 
 6. `middlewares/error.middleware.ts`
@@ -140,6 +205,16 @@ Create a stable skeleton that never changes.
     - Handle AppError
     - Handle unknown errors
 
+    ```typescript
+    // Imports
+
+    // Express error middleware
+
+    // If AppError → send status + message
+    // Else → log error, return 500
+
+    ```
+
     🚫 No business messages
 
 7. `common/utils/response.util.ts`
@@ -150,6 +225,17 @@ Create a stable skeleton that never changes.
     **What to implement**
     - `sendSuccess`
     - `sendError` (optional)
+
+    ```typescript
+    // Imports
+
+    // Define interfaces SuccessResponse (Generic), ErrorResponse
+
+    // Declare and Export sendSuccess, sendError functions
+
+    ```
+
+    **Note:** Most errors should be handled by `error.middleware.ts`.
 
     🚫 No controller logic
 
@@ -165,6 +251,22 @@ Create a stable skeleton that never changes.
     - Error middleware
     - Health route
     - DB loader call
+    - Server bootstrap (listen)
+
+    ```typescript
+    // Import logger, initDB, errorMiddleware, DataSource, env
+
+    // Express app
+
+    // Middlewares
+
+    // Health route (NO DB QUERY)
+
+    // Error middleware (must be last)
+
+    // Server bootstrap
+    
+    ```
 
     🚫 No routes yet (except /health)
 
@@ -207,3 +309,12 @@ Create a stable skeleton that never changes.
 ```
 
 🚨 No business logic yet.
+
+### ✅ Phase 0 Done When
+
+- App starts successfully
+- Invalid env fails fast
+- Database connects once at startup
+- `/health` returns 200 OK
+- Errors are handled centrally
+- No feature code exists
