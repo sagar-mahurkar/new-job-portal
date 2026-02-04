@@ -1,0 +1,7 @@
+export enum CompanySector {
+  IT = 'IT',
+  FINANCE = 'FINANCE',
+  HEALTHCARE = 'HEALTHCARE',
+  EDUCATION = 'EDUCATION',
+  MANUFACTURING = 'MANUFACTURING'
+};
