@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "NODE_ENV=staging nodemon src/index.ts"
+    "dev": "NODE_ENV=staging nodemon --exec ts-node -r tsconfig-paths/register src/index.ts"
   },
   "keywords": [],
   "author": "",
@@ -17,12 +17,15 @@
     "jsonwebtoken": "^9.0.3",
     "nodemailer": "^7.0.13",
     "pg": "^8.18.0",
+    "tsconfig-paths": "^4.2.0",
     "typeorm": "^0.3.28",
+    "uuid": "^13.0.0",
     "zod": "^4.3.6"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/node": "^25.2.0",
+    "@types/uuid": "^10.0.0",
     "nodemon": "^3.1.11",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
