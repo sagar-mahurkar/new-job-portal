@@ -11,7 +11,7 @@ interface ErrorResponse {
   message: string;
 }
 
-export const sendSuccess = <T>(
+export const sendSuccessResponse = <T>(
   res: Response,
   statusCode: number,
   data: T,
@@ -26,7 +26,7 @@ export const sendSuccess = <T>(
   return res.status(statusCode).json(response);
 };
 
-export const sendError = (
+export const sendErrorResponse = (
   res: Response,
   statusCode: number,
   message: string

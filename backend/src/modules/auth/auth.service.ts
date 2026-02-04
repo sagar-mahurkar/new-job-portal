@@ -1,0 +1,233 @@
+// auth.service.ts
+import bcrypt from "bcrypt";
+import { userRepository } from "@/modules/user/user.repository";
+import { UserRole } from "@/common/enums";
+import { SignupRecruiterDto, SignupCandidateDto, LoginPasswordDto, LoginOtpDto, RequestOtpDto } from "./dtos";
+import { AppError } from "@/common/errors/AppError";
+import { HttpStatusCodes } from "@/common/constants/http.codes";
+import { User } from "@/modules/user/user.entity"
+
+export class AuthService {
+  // signupRecruiter()
+  async signupRecruiter(dto: SignupRecruiterDto) {
+    // 1. Check if user already exists
+    const existingUser = await userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new AppError("User with email already exists", HttpStatusCodes.CONFLICT);
+    };
+
+    // 2. Hash the plain-text password
+    const hashedPassword = await this.hashPassword(dto.password);
+
+    // 3. Create recruiter user entity
+    const user = userRepository.create({
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+      role: UserRole.RECRUITER,
+      isActive: true,
+    });
+
+    // 4. Persist user in database
+    await userRepository.save(user);
+
+    // 5. (Later) create recruiter profile in same transaction
+    // recruiterRepository.create({ user })
+
+    // 6. (Later) generate JWT for authenticated session
+    // const token = this.generateJwt(user.id, user.role);
+
+    return { 
+      user, 
+      // token
+    }
+  }
+
+  // signupCandidate()
+  async signupCandidate(dto: SignupCandidateDto) {
+    // 1. Check if user already exists
+    const existingUser = await userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new AppError("User with email already exists", HttpStatusCodes.CONFLICT);
+    };
+
+    // 2. Hash the plain-text password
+    const hashedPassword = await this.hashPassword(dto.password);
+
+    // 3. Create candidate user entity
+    const user = userRepository.create({
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+      role: UserRole.CANDIDATE,
+      isActive: true,
+    });
+
+    // 4. Persist user in database
+    await userRepository.save(user);
+
+    // 5. (Later) create candidate profile in same transaction
+    // candidateRepository.create({ user })
+
+    // 6. (Later) generate JWT for authenticated session
+    // const token = this.generateJwt(user.id, user.role);
+
+    return { 
+      user, 
+      // token
+    }
+  }
+
+  // loginWithPassword()
+  async loginWithPassword(dto: LoginPasswordDto) {
+    // 1. Fetch user by email
+    const user = await userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    // 2. Validate user existence and password-based login eligibility
+    if (!user || !user.password) {
+      throw new AppError("Invalid email or password", HttpStatusCodes.UNAUTHORIZED);
+    };
+
+    // 3. Ensure account is active
+    if (!user.isActive) {
+      throw new AppError("Account is disabled", HttpStatusCodes.FORBIDDEN);
+    };
+
+    // 4. Compare provided password with stored hash
+    const isPasswordValid = await this.comparePassword(dto.password, user.password)
+
+    if (!isPasswordValid) {
+      throw new AppError("Invalid password", HttpStatusCodes.BAD_REQUEST);
+    };
+
+    // 5. (Later) generate JWT for authenticated session
+    // const token = this.generateJwt(user.id, user.role);
+
+    return { 
+      user, 
+      // token
+    }
+  }
+
+  // requestLoginOtp()
+  async requestLoginOtp(dto: RequestOtpDto) {
+    // 1. Fetch user by email
+    const user = await userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    // 2. Validate user existence and active status
+    if (!user || !user.isActive) {
+      throw new AppError("Unable to process OTP request", HttpStatusCodes.UNAUTHORIZED);
+    };
+
+    // 3. Generate one-time password (OTP)
+    const otp = this.generateLoginOtp();
+
+    // 4. Store OTP and expiry timestamp
+    user.loginOtp = otp;
+    user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
+    await userRepository.save(user);
+
+    // 5. (Later) send OTP via email/SMS
+    // await this.emailService.sendLoginOtp(user.email, otp);
+
+    return;
+  }
+
+  // resendLoginOtp()
+  async resendLoginOtp(dto: RequestOtpDto) {
+    // 1. Fetch user by email
+    const user = await userRepository.findOne({
+      where: { email: dto.email },
+    });
+
+    // 2. Validate user existence and active status
+    if (!user || !user.isActive) {
+      throw new AppError("Unable to process OTP request", HttpStatusCodes.UNAUTHORIZED);
+    };
+
+    // 3. Prevent resending OTP if existing OTP is still valid
+    if (user.loginOtpExpiresAt > new Date()) {
+      throw new AppError("OTP has already been sent", HttpStatusCodes.BAD_REQUEST);
+    };
+
+    // 4. Generate new one-time password (OTP)
+    const otp = this.generateLoginOtp();
+
+    // 5. Store new OTP and expiry timestamp
+    user.loginOtp = otp;
+    user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
+    await userRepository.save(user);
+
+    // 6. (Later) send OTP via email/SMS
+    // await this.emailService.sendLoginOtp(user.email, otp);
+
+    return;
+  }
+
+  // loginWithOtp()
+  async loginWithOtp(dto: LoginOtpDto) {
+    // 1. Fetch user by email
+    const user = await userRepository.findOne({
+      where: { email: dto.email }
+    });
+
+    // 2. Validate OTP existence and expiry
+    if (!user || user.loginOtpExpiresAt < new Date()) {
+      throw new AppError("Invalid email or otp", HttpStatusCodes.UNAUTHORIZED);
+    }
+
+    // 3. Clear OTP after successful verification
+    await this.clearLoginOtp(user);
+
+    // 4. (Later) generate JWT for authenticated session
+    // const token = this.generateJwt(user.id, user.role);
+
+    return { 
+      user, 
+      // token
+    }
+  }
+
+  // ============================
+  // Private helper functions
+  // ============================
+
+  // hashPassword()
+  private async hashPassword(password: string): Promise<string> {
+    const saltRounds = 10;
+    return bcrypt.hash(password, saltRounds);
+  }
+
+  // comparePassword()
+  private async comparePassword(
+    plainPassword: string, 
+    hashedPassword: string
+  ): Promise<boolean> {
+    return bcrypt.compare(plainPassword, hashedPassword);
+  }
+
+  // generateJwt()
+  // (to be implemented later)
+
+  // generateLoginOtp()
+  private generateLoginOtp() {
+    return Math.floor(100000 + Math.random() * 900000).toString();
+  }
+  
+  // clearLoginOtp()
+  private async clearLoginOtp(user: User): Promise<void> {
+    user.loginOtp = null;
+    user.loginOtpExpiresAt = null;
+    return;
+  }
+}

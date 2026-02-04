@@ -38,7 +38,7 @@ export class User {
   loginOtp?: string;
 
   @Column({ type: "timestamptz", nullable: true })
-  loginOtpExpriresAt?: Date;
+  loginOtpExpiresAt?: Date;
 
   // @Column({ nullable: true })
   // emailVerificationOtp: string; // (later)
