@@ -2,13 +2,13 @@ import {
     Column,
     CreateDateColumn,
     Entity,
-    OneToMany,
     OneToOne,
     PrimaryGeneratedColumn,
     UpdateDateColumn,
 } from "typeorm";
 import { UserRole } from "@/common/enums"
-// import { Candidate, Recruiter } from "@/modules/recruiter/recruiter.entity.ts"
+import { Recruiter } from "@/modules/recruiter/recruiter.entity"
+import { Candidate } from "@/modules/candidate/candidate.entity"
 
 @Entity({ name: "users", synchronize: true })
 export class User {
@@ -41,7 +41,7 @@ export class User {
   loginOtpExpiresAt?: Date;
 
   // @Column({ nullable: true })
-  // emailVerificationOtp: string; // (later)
+  // emailVerificationOtp?: string; // (later)
 
   @CreateDateColumn({ type: "timestamptz" })
   createdAt: Date;
@@ -49,11 +49,11 @@ export class User {
   @UpdateDateColumn({ type: "timestamptz" })
   updatedAt: Date;
 
-  // // one to one relationship
-  // @OneToOne(() => Recruiter, (recruiter) => recruiter.user)
-  // recruiter: Recruiter;
+  // one to one relationship
+  @OneToOne(() => Recruiter, (recruiter) => recruiter.user, {cascade: true})
+  recruiter: Recruiter;
 
-  // // one to one relationship
-  // @OneToOne(() => Candidate, (candidate) => candidate.user)
-  // candidate: Candidate;
+  // one to one relationship
+  @OneToOne(() => Candidate, (candidate) => candidate.user, {cascade: true})
+  candidate: Candidate;
 }

@@ -6,6 +6,8 @@ import { errorMiddleware } from "./middlewares/error.middleware";
 import { JobPortalDataSource } from "./config/database.config";
 import { HttpStatusCodes } from "./common/constants/http.codes";
 import { env } from "./config/env.config";
+import authRoutes from "@/routes/v1/auth.routes";
+import { MailTransporter } from "./config/mail.config";
 
 // Express app
 const app = express();
@@ -13,6 +15,7 @@ const app = express();
 // Middlewares
 app.use(cors());
 app.use(express.json());
+app.use("/api/v1/auth", authRoutes);
 
 // Health route (NO DB QUERY)
 app.get("/health", (_req, res) => {
@@ -33,6 +36,8 @@ const startServer = async () => {
   try {
     await initDB();
 
+    await MailTransporter.getInstance().init();
+    
     const PORT = env.PORT || 8080;
     app.listen(PORT, () => {
       logger.info(`Server running on port ${PORT}`);

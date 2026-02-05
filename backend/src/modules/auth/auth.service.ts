@@ -1,11 +1,14 @@
 // auth.service.ts
 import bcrypt from "bcrypt";
 import { userRepository } from "@/modules/user/user.repository";
+import { JobPortalDataSource } from "@/config/database.config";
 import { UserRole } from "@/common/enums";
 import { SignupRecruiterDto, SignupCandidateDto, LoginPasswordDto, LoginOtpDto, RequestOtpDto } from "./dtos";
 import { AppError } from "@/common/errors/AppError";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 import { User } from "@/modules/user/user.entity"
+import { Recruiter } from "@/modules/recruiter/recruiter.entity"
+import { Candidate } from "../candidate/candidate.entity";
 import { MailTransporter } from "@/config/mail.config";
 import * as fs from "fs/promises";
 import path from "path";
@@ -33,22 +36,26 @@ export class AuthService {
     // 2. Hash the plain-text password
     const hashedPassword = await this.hashPassword(dto.password);
 
-    // 3. Create recruiter user entity
-    const user = userRepository.create({
-      name: dto.name,
-      email: dto.email,
-      password: hashedPassword,
-      role: UserRole.RECRUITER,
-      isActive: true,
-    });
+    const user = await JobPortalDataSource.transaction(async (manager) => {
+      // 3. Create recruiter user entity
+      const user = manager.create(User, {
+        name: dto.name,
+        email: dto.email,
+        password: hashedPassword,
+        role: UserRole.RECRUITER,
+        isActive: true,
+      });
+      // 4. Persist user in database
+      await manager.save(user);
 
-    // 4. Persist user in database
-    await userRepository.save(user);
+      // 5. create recruiter profile in same transaction
+      const recruiter = manager.create(Recruiter, { user })
+      await manager.save(recruiter);
 
-    // 5. (Later) create recruiter profile in same transaction
-    // recruiterRepository.create({ user })
-
-    // 6. (Later) generate JWT for authenticated session
+      return user;
+    })
+ 
+    // 6. generate JWT for authenticated session
     const token = this.generateJwt(user.id, user.role);
 
     return { 
@@ -74,22 +81,27 @@ export class AuthService {
     // 2. Hash the plain-text password
     const hashedPassword = await this.hashPassword(dto.password);
 
-    // 3. Create candidate user entity
-    const user = userRepository.create({
-      name: dto.name,
-      email: dto.email,
-      password: hashedPassword,
-      role: UserRole.CANDIDATE,
-      isActive: true,
-    });
+    const user = await JobPortalDataSource.transaction(async (manager) => {
+      // 3. Create candidate user entity
+      const user = manager.create(User, {
+        name: dto.name,
+        email: dto.email,
+        password: hashedPassword,
+        role: UserRole.CANDIDATE,
+        isActive: true,
+      });
 
-    // 4. Persist user in database
-    await userRepository.save(user);
+      // 4. Persist user in database
+      await manager.save(user);
 
-    // 5. (Later) create candidate profile in same transaction
-    // candidateRepository.create({ user })
+      // 5. create candidate profile in same transaction
+      const candidate = manager.create(Candidate, { user })
+      await manager.save(candidate);
 
-    // 6. (Later) generate JWT for authenticated session
+      return user;
+    })
+
+    // 6. generate JWT for authenticated session
     const token = this.generateJwt(user.id, user.role);
 
     return { 
@@ -126,12 +138,12 @@ export class AuthService {
 
     if (!isPasswordValid) {
       throw new AppError(
-        "Invalid password", 
+        "Invalid email or password", 
         HttpStatusCodes.UNAUTHORIZED
       );
     };
 
-    // 5. (Later) generate JWT for authenticated session
+    // 5. generate JWT for authenticated session
     const token = this.generateJwt(user.id, user.role);
 
     return { 
@@ -155,15 +167,23 @@ export class AuthService {
       );
     };
 
-    // 3. Generate one-time password (OTP)
+    // 3. Prevent resending OTP if existing OTP is still valid
+    if (user.loginOtpExpiresAt && user.loginOtpExpiresAt > new Date()) {
+      throw new AppError(
+        "OTP has already been sent", 
+        HttpStatusCodes.TOO_MANY_REQUESTS
+      );
+    };
+    
+    // 4. Generate one-time password (OTP)
     const otp = this.generateLoginOtp();
 
-    // 4. Store OTP and expiry timestamp
+    // 5. Store OTP and expiry timestamp
     user.loginOtp = otp;
     user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
     await userRepository.save(user);
 
-    // 5. send OTP via email/SMS
+    // 6. send OTP via email/SMS
     await this.sendOtpEmail(user, otp);
 
     return;
@@ -188,7 +208,7 @@ export class AuthService {
     if (user.loginOtpExpiresAt > new Date()) {
       throw new AppError(
         "OTP has already been sent", 
-        HttpStatusCodes.UNAUTHORIZED
+        HttpStatusCodes.TOO_MANY_REQUESTS
       );
     };
 
@@ -212,13 +232,17 @@ export class AuthService {
     const user = await userRepository.findOne({
       where: { email: dto.email }
     });
+
+    if (!user) {
+      throw new AppError("Invalid email or otp", HttpStatusCodes.UNAUTHORIZED);
+    }
+
     if (!user.isActive) {
       throw new AppError("Account is disabled", HttpStatusCodes.FORBIDDEN);
     }
     
     // 2. Validate OTP existence and expiry
     if (
-      !user ||
       !user.loginOtp ||
       user.loginOtp !== dto.loginOtp ||
       user.loginOtpExpiresAt < new Date()
@@ -232,7 +256,7 @@ export class AuthService {
     // 3. Clear OTP after successful verification
     await this.clearLoginOtp(user);
 
-    // 4. (Later) generate JWT for authenticated session
+    // 4. generate JWT for authenticated session
     const token = this.generateJwt(user.id, user.role);
 
     return { 
@@ -260,11 +284,10 @@ export class AuthService {
   }
 
   // generateJwt()
-  // (to be implemented later)
   private generateJwt(userId: string, userRole: UserRole): string {
     return jsonwebtoken.sign(
       { 
-        id: userId, 
+        sub: userId, 
         role: userRole
       }, 
       env.JWT_SECRET, 
