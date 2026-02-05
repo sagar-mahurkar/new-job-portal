@@ -6,8 +6,16 @@ import { SignupRecruiterDto, SignupCandidateDto, LoginPasswordDto, LoginOtpDto, 
 import { AppError } from "@/common/errors/AppError";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 import { User } from "@/modules/user/user.entity"
-
+import { MailTransporter } from "@/config/mail.config";
+import * as fs from "fs/promises";
+import path from "path";
+import jsonwebtoken from "jsonwebtoken";
+import { env } from "@/config/env.config";
 export class AuthService {
+  private transporter = MailTransporter.getInstance();
+
+  private htmlTemplatePath = path.join(process.cwd(), "src", "templates", "otp.html"); // path will change later
+  
   // signupRecruiter()
   async signupRecruiter(dto: SignupRecruiterDto) {
     // 1. Check if user already exists
@@ -16,7 +24,10 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new AppError("User with email already exists", HttpStatusCodes.CONFLICT);
+      throw new AppError(
+        "User with email already exists", 
+        HttpStatusCodes.CONFLICT
+      );
     };
 
     // 2. Hash the plain-text password
@@ -38,11 +49,11 @@ export class AuthService {
     // recruiterRepository.create({ user })
 
     // 6. (Later) generate JWT for authenticated session
-    // const token = this.generateJwt(user.id, user.role);
+    const token = this.generateJwt(user.id, user.role);
 
     return { 
       user, 
-      // token
+      token
     }
   }
 
@@ -54,7 +65,10 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new AppError("User with email already exists", HttpStatusCodes.CONFLICT);
+      throw new AppError(
+        "User with email already exists", 
+        HttpStatusCodes.CONFLICT
+      );
     };
 
     // 2. Hash the plain-text password
@@ -76,11 +90,11 @@ export class AuthService {
     // candidateRepository.create({ user })
 
     // 6. (Later) generate JWT for authenticated session
-    // const token = this.generateJwt(user.id, user.role);
+    const token = this.generateJwt(user.id, user.role);
 
     return { 
       user, 
-      // token
+      token
     }
   }
 
@@ -93,27 +107,36 @@ export class AuthService {
 
     // 2. Validate user existence and password-based login eligibility
     if (!user || !user.password) {
-      throw new AppError("Invalid email or password", HttpStatusCodes.UNAUTHORIZED);
+      throw new AppError(
+        "Invalid email or password", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
     };
 
     // 3. Ensure account is active
     if (!user.isActive) {
-      throw new AppError("Account is disabled", HttpStatusCodes.FORBIDDEN);
+      throw new AppError(
+        "Account is disabled", 
+        HttpStatusCodes.FORBIDDEN
+      );
     };
 
     // 4. Compare provided password with stored hash
     const isPasswordValid = await this.comparePassword(dto.password, user.password)
 
     if (!isPasswordValid) {
-      throw new AppError("Invalid password", HttpStatusCodes.BAD_REQUEST);
+      throw new AppError(
+        "Invalid password", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
     };
 
     // 5. (Later) generate JWT for authenticated session
-    // const token = this.generateJwt(user.id, user.role);
+    const token = this.generateJwt(user.id, user.role);
 
     return { 
       user, 
-      // token
+      token
     }
   }
 
@@ -126,7 +149,10 @@ export class AuthService {
 
     // 2. Validate user existence and active status
     if (!user || !user.isActive) {
-      throw new AppError("Unable to process OTP request", HttpStatusCodes.UNAUTHORIZED);
+      throw new AppError(
+        "Unable to process OTP request", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
     };
 
     // 3. Generate one-time password (OTP)
@@ -137,8 +163,8 @@ export class AuthService {
     user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
     await userRepository.save(user);
 
-    // 5. (Later) send OTP via email/SMS
-    // await this.emailService.sendLoginOtp(user.email, otp);
+    // 5. send OTP via email/SMS
+    await this.sendOtpEmail(user, otp);
 
     return;
   }
@@ -152,12 +178,18 @@ export class AuthService {
 
     // 2. Validate user existence and active status
     if (!user || !user.isActive) {
-      throw new AppError("Unable to process OTP request", HttpStatusCodes.UNAUTHORIZED);
+      throw new AppError(
+        "Unable to process OTP request",
+        HttpStatusCodes.UNAUTHORIZED
+      );
     };
 
     // 3. Prevent resending OTP if existing OTP is still valid
     if (user.loginOtpExpiresAt > new Date()) {
-      throw new AppError("OTP has already been sent", HttpStatusCodes.BAD_REQUEST);
+      throw new AppError(
+        "OTP has already been sent", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
     };
 
     // 4. Generate new one-time password (OTP)
@@ -168,8 +200,8 @@ export class AuthService {
     user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
     await userRepository.save(user);
 
-    // 6. (Later) send OTP via email/SMS
-    // await this.emailService.sendLoginOtp(user.email, otp);
+    // 6. send OTP via email/SMS
+    await this.sendOtpEmail(user, otp);
 
     return;
   }
@@ -180,21 +212,32 @@ export class AuthService {
     const user = await userRepository.findOne({
       where: { email: dto.email }
     });
-
+    if (!user.isActive) {
+      throw new AppError("Account is disabled", HttpStatusCodes.FORBIDDEN);
+    }
+    
     // 2. Validate OTP existence and expiry
-    if (!user || user.loginOtpExpiresAt < new Date()) {
-      throw new AppError("Invalid email or otp", HttpStatusCodes.UNAUTHORIZED);
+    if (
+      !user ||
+      !user.loginOtp ||
+      user.loginOtp !== dto.loginOtp ||
+      user.loginOtpExpiresAt < new Date()
+    ) {
+      throw new AppError(
+        "Invalid email or otp", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
     }
 
     // 3. Clear OTP after successful verification
     await this.clearLoginOtp(user);
 
     // 4. (Later) generate JWT for authenticated session
-    // const token = this.generateJwt(user.id, user.role);
+    const token = this.generateJwt(user.id, user.role);
 
     return { 
       user, 
-      // token
+      token
     }
   }
 
@@ -218,6 +261,16 @@ export class AuthService {
 
   // generateJwt()
   // (to be implemented later)
+  private generateJwt(userId: string, userRole: UserRole): string {
+    return jsonwebtoken.sign(
+      { 
+        id: userId, 
+        role: userRole
+      }, 
+      env.JWT_SECRET, 
+      { expiresIn: "1d"}
+    );
+  }
 
   // generateLoginOtp()
   private generateLoginOtp() {
@@ -228,6 +281,20 @@ export class AuthService {
   private async clearLoginOtp(user: User): Promise<void> {
     user.loginOtp = null;
     user.loginOtpExpiresAt = null;
-    return;
+    await userRepository.save(user);
+  }
+
+  // sendOtpEmail
+  private async sendOtpEmail(user: User, otp: string) {
+    const htmlTemplate = await fs.readFile(this.htmlTemplatePath, "utf-8");
+    const htmlContent = htmlTemplate
+    .replace("{{ name }}", user.name)
+    .replace("{{ otp }}", otp)
+    .replace("{{ content }}", "complete your login process")
+    await this.transporter.sendEmail(
+      user.email, 
+      "Job Portal - Your Login OTP", 
+      htmlContent
+    );
   }
 }

@@ -10,18 +10,10 @@ import {
 } from "./dtos"
 import { sendSuccessResponse } from "@/common/utils/response.util";
 export class AuthController {
-  constructor() {
-    this.signupRecruiter = this.signupRecruiter.bind(this);
-    this.signupCandidate = this.signupCandidate.bind(this);
-    this.loginWithPassword = this.loginWithPassword.bind(this);
-    this.requestLoginOtp = this.requestLoginOtp.bind(this);
-    this.resendLoginOtp = this.resendLoginOtp.bind(this);
-    this.loginWithOtp = this.loginWithOtp.bind(this);
-  }
 
-  private readonly authService = new AuthService();
+  private static authService = new AuthService();
   // TODO: signupRecruiter()
-  async signupRecruiter(req: Request, res: Response, next: NextFunction) {
+  static async signupRecruiter(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = signupRecruiterSchema.parse(req.body);
       const result = await this.authService.signupRecruiter(dto);
@@ -37,7 +29,7 @@ export class AuthController {
   }
 
   // TODO: signupCandidate()
-    async signupCandidate(req: Request, res: Response, next: NextFunction) {
+    static async signupCandidate(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = signupCandidateSchema.parse(req.body);
       const result = await this.authService.signupCandidate(dto);
@@ -53,7 +45,7 @@ export class AuthController {
   }
 
   // TODO: loginWithPassword()
-  async loginWithPassword(req: Request, res: Response, next: NextFunction) {
+  static async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = loginPasswordSchema.parse(req.body);
       const result = await this.authService.loginWithPassword(dto);
@@ -69,7 +61,7 @@ export class AuthController {
   }
 
   // TODO: requestLoginOtp()
-  async requestLoginOtp(req: Request, res: Response, next: NextFunction) {
+  static async requestLoginOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = requestOtpSchema.parse(req.body);
       const result = await this.authService.requestLoginOtp(dto);
@@ -85,7 +77,7 @@ export class AuthController {
   }
 
   // TODO: resendLoginOtp()
-  async resendLoginOtp(req: Request, res: Response, next: NextFunction) {
+  static async resendLoginOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = requestOtpSchema.parse(req.body);
       const result = await this.authService.resendLoginOtp(dto);
@@ -101,7 +93,7 @@ export class AuthController {
   }
 
   // TODO: loginWithOtp()
-  async loginWithOtp(req: Request, res: Response, next: NextFunction) {
+  static async loginWithOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = loginOtpSchema.parse(req.body);
       const result = await this.authService.loginWithOtp(dto);
