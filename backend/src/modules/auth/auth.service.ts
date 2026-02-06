@@ -12,7 +12,7 @@ import { Candidate } from "../candidate/candidate.entity";
 import { MailTransporter } from "@/config/mail.config";
 import * as fs from "fs/promises";
 import path from "path";
-import jsonwebtoken from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { env } from "@/config/env.config";
 export class AuthService {
   private transporter = MailTransporter.getInstance();
@@ -285,7 +285,7 @@ export class AuthService {
 
   // generateJwt()
   private generateJwt(userId: string, userRole: UserRole): string {
-    return jsonwebtoken.sign(
+    return jwt.sign(
       { 
         sub: userId, 
         role: userRole
