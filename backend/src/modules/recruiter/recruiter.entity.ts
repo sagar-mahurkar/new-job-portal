@@ -4,12 +4,13 @@ import {
   Entity,
   JoinColumn,
   OneToOne,
+  OneToMany,
   PrimaryColumn,
   UpdateDateColumn
 } from "typeorm";
 import { User } from "@/modules/user/user.entity";
 import { CompanySector } from "@/common/enums";
-
+import { Job } from "@/modules/job/job.entity";
 @Entity({ name: "recruiters", synchronize: true })
 export class Recruiter {
   @PrimaryColumn()
@@ -34,4 +35,8 @@ export class Recruiter {
 
   @UpdateDateColumn({ type: "timestamptz" })
   updatedAt: Date;
+
+  // one to many relationship
+  @OneToMany(() => Job, (job) => job.recruiter, {cascade: true})
+  jobPostings: Job;
 }
