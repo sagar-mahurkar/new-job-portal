@@ -45,6 +45,6 @@ export const verifyJwt = (
   }
 };
 
-// TODO: Implement JWT Authentication Middleware
-// TODO: Define Authenticated User Type
-// TODO: Protect Routes Using Auth Middleware
+// Implement JWT Authentication Middleware
+// Define Authenticated User Type
+// Protect Routes Using Auth Middleware
