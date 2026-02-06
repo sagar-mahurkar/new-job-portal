@@ -1,21 +1,37 @@
 # PHASE-WISE DEVELOPMENT PLAN
 
-## Phase 2: Authorization & Middleware
+## Phase 3: Job Posting (Recruiter side)
 
-🎯 Goal
+🎯 Build your FIRST real feature
 
-Protect the system before adding features.
+Build order (VERY IMPORTANT)
 
-Build
+- job.entity.ts
 
-- auth.middleware.ts (JWT)
+- job.dto.ts
 
-- role.middleware.ts (recruiter / candidate)
+- job.repository.ts
 
-Test
+- job.service.ts
 
-- Recruiter cannot access candidate APIs
+- job.controller.ts
 
-- Candidate cannot create jobs
+- job.routes.ts
 
-🚨 Never add features before this.
+Recruiter only.
+
+Rules:
+
+- Service checks ownership
+
+- Repository never checks role
+
+- Controller never checks DB
+
+APIs
+
+- create job
+
+- list my jobs
+
+- get job by id
