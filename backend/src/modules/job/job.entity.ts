@@ -30,6 +30,9 @@ export class Job {
   @Column({ type: "enum", enum: JobStatus, default: JobStatus.OPEN})
   status: JobStatus;
 
+  @Column({ type: "int" })
+  vacancies: number;
+
   @Column({ default: 0 })
   applicantCount: number;
 
