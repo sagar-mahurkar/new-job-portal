@@ -8,7 +8,12 @@ import {
   CreateDateColumn,
 } from "typeorm";
 
-import { CandidateQualification, CompanySector } from "@/common/enums";
+import { 
+  CANDIDATE_QUALIFICATIONS, 
+  CandidateQualification, 
+  COMPANY_SECTORS, 
+  CompanySector 
+} from "@/common/enums";
 import { User } from "@/modules/user/user.entity";
 
 @Entity({ name: "candidates", synchronize: true})
@@ -21,13 +26,13 @@ export class Candidate {
   @JoinColumn({ name: "userId" })
   user: User;
 
-  @Column({ type: "enum", enum: CompanySector, nullable: true })
+  @Column({ type: "enum", enum: COMPANY_SECTORS, nullable: true })
   currentSector?: CompanySector;
 
   @Column({ nullable: true })
   experienceMonths?: number;
 
-  @Column({ type: "enum", enum: CandidateQualification, nullable: true })
+  @Column({ type: "enum", enum: CANDIDATE_QUALIFICATIONS, nullable: true })
   qualification?: CandidateQualification;
 
   @Column({ nullable: true, length: 500 })

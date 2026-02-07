@@ -9,7 +9,7 @@ import {
   UpdateDateColumn
 } from "typeorm";
 import { User } from "@/modules/user/user.entity";
-import { CompanySector } from "@/common/enums";
+import { COMPANY_SECTORS, CompanySector } from "@/common/enums";
 import { Job } from "@/modules/job/job.entity";
 @Entity({ name: "recruiters", synchronize: true })
 export class Recruiter {
@@ -24,7 +24,7 @@ export class Recruiter {
   @Column({ nullable: true })
   companyName?: string;
 
-  @Column({ type: "enum", enum: CompanySector, nullable: true})
+  @Column({ type: "enum", enum: COMPANY_SECTORS, nullable: true})
   companySector?: CompanySector;
 
   @Column({ nullable: true })
