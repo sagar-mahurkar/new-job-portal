@@ -17,7 +17,7 @@ import {
 } from "@/common/enums"
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
 
-@Entity({ name: "jobs", synchronize: true})
+@Entity({ name: "jobs", synchronize: false})
 export class Job {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -54,6 +54,6 @@ export class Job {
   @JoinColumn({ name: "recruiterId"})
   recruiter: Recruiter;
 
-  @Column()
+  @Column({ type: "uuid" })
   recruiterId: string;
 }

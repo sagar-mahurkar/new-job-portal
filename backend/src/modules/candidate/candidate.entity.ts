@@ -16,9 +16,9 @@ import {
 } from "@/common/enums";
 import { User } from "@/modules/user/user.entity";
 
-@Entity({ name: "candidates", synchronize: true})
+@Entity({ name: "candidates", synchronize: false})
 export class Candidate {
-  @PrimaryColumn()
+  @PrimaryColumn("uuid")
   userId: string;
 
   // one to one relationship

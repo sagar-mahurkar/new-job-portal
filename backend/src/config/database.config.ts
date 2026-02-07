@@ -11,7 +11,7 @@ const databaseConfig: DataSourceOptions = {
   username: env.POSTGRES_USERNAME,
   password: env.POSTGRES_PASSWORD,
   database: env.POSTGRES_DATABASE,
-  synchronize: true,
+  synchronize: false,
   logging: false,
   entities: [__dirname + "/../modules/**/*.entity.{ts,js}"],
   migrations: [__dirname + "/migrations/*.{ts,js}"],
