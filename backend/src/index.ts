@@ -7,6 +7,7 @@ import { JobPortalDataSource } from "./config/database.config";
 import { HttpStatusCodes } from "./common/constants/http.codes";
 import { env } from "./config/env.config";
 import authRoutes from "@/routes/v1/auth.routes";
+import jobRoutes from "@/routes/v1/job.routes"
 import { MailTransporter } from "./config/mail.config";
 
 // Express app
@@ -16,6 +17,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use("/api/v1/auth", authRoutes);
+app.use("/jobs", jobRoutes);
 
 // Health route (NO DB QUERY)
 app.get("/health", (_req, res) => {
