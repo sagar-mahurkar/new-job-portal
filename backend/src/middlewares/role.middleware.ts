@@ -3,7 +3,7 @@ import { AppError } from "@/common/errors/AppError";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 
 export const requireRole =
-  (...allowedRoles: Array<'recruiter' | 'candidate'>) =>
+  (...allowedRoles: Array<'RECRUITER' | 'CANDIDATE'>) =>
   (req: Request, _res: Response, next: NextFunction) => {
 
     if (!req.user) {

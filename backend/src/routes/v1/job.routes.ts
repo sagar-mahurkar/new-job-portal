@@ -6,12 +6,12 @@ import { requireRole } from "@/middlewares/role.middleware";
 const router = Router()
 
 // create job
-router.post("/", verifyJwt, requireRole("recruiter"), JobController.createJob);
+router.post("/", verifyJwt, requireRole("RECRUITER"), JobController.createJob);
 
 // get my jobs
-router.get("/me", verifyJwt, requireRole("recruiter"), JobController.getMyJobs)
+router.get("/me", verifyJwt, requireRole("RECRUITER"), JobController.getMyJobs)
 
 // get job by id
-router.get("/:id", verifyJwt, requireRole("recruiter"), JobController.getJobById);
+router.get("/:id", verifyJwt, requireRole("RECRUITER"), JobController.getJobById);
 
 export default router;
