@@ -38,5 +38,5 @@ export class Recruiter {
 
   // one to many relationship
   @OneToMany(() => Job, (job) => job.recruiter, {cascade: true})
-  jobPostings: Job;
+  jobPostings: Job[];
 }
