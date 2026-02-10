@@ -24,9 +24,9 @@
 
 - Update candidate-specific fields (e.g., bio, skills, experience, etc.)
 
-- Profile identified via req.user.id
+- Profile identified via `req.user.id`
 
-- Role must be candidate
+- Role must be `candidate`
 
 #### 2. Update Recruiter Profile
 
@@ -38,9 +38,21 @@
 
   - description
 
-- Profile identified via req.user.id
+- Profile identified via `req.user.id`
 
-- Role must be recruiter
+- Role must be `recruiter`
+
+#### 3. Delete / Deactivate Candidate Profile
+
+- Soft delete or deactivate (recommended)
+
+- Profile resolved via `req.user.id`
+
+#### 4. Delete / Deactivate Recruiter Profile
+
+- Soft delete or deactivate (recommended)
+
+- Profile resolved via `req.user.id`
 
 ### Explicitly Excluded
 
@@ -61,8 +73,6 @@ Document *why* certain decisions were made.
 ---
 
 ## 🗂 Files Added / Modified
-
-High-level list only (no code snippets):
 
 - `src/modules/job/job.entity.ts`
 - `src/modules/job/job.service.ts`
