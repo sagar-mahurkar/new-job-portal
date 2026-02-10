@@ -1,118 +1,192 @@
 # Phase 2.1 – User Profile Management
 
 > Branch: `backend-phase-2.1-profile-management`  
-> Status: Inprogress  
 > Parent branch: `main`
+> Status: Completed  
 
 ---
 
 ## 🎯 Objective
 
-- Allow users to update and manage profile data
+Introduce **self-service profile management** while maintaining strict ownership, role isolation, and clean architectural boundaries.
 
-- Ensure only the owner can modify their profile
-
-- Keep profile logic separate from auth and jobs
+This phase focuses on enabling users to manage their own profile data without exposing identity-based access or leaking cross-role data.
 
 ---
 
 ## 📦 Scope
 
-### Included
+### ✅ Included
 
-#### 1. Update Candidate Profile
+#### 1. Candidate Profile Management
 
-- Update candidate-specific fields (e.g., bio, skills, experience, etc.)
+- Fetch candidate profile via `/me`
 
-- Profile identified via `req.user.id`
+- Update candidate-specific fields (experience, qualification, bio, links, etc.)
 
-- Role must be `candidate`
+- Profile resolution via authenticated user (`req.user.id`)
 
-#### 2. Update Recruiter Profile
+- Access restricted to `CANDIDATE` role
+
+#### 2. Recruiter Profile Management
+
+- Fetch recruiter profile via /me
 
 - Update recruiter-specific fields:
 
   - company name
 
-  - sector
+  - company sector
 
-  - description
+  - company description
 
-- Profile identified via `req.user.id`
+- Profile resolution via authenticated user (req.user.id)
 
-- Role must be `recruiter`
+- Access restricted to RECRUITER role
 
-#### 3. Delete / Deactivate Candidate Profile
+#### 3. User Profile Management (Shared)
 
-- Soft delete or deactivate (recommended)
+- Fetch basic user details (name, email, role)
 
-- Profile resolved via `req.user.id`
+- Update user-level fields (name, email, password)
 
-#### 4. Delete / Deactivate Recruiter Profile
+- Soft delete (deactivate user via isActive = false)
 
-- Soft delete or deactivate (recommended)
-
-- Profile resolved via `req.user.id`
+- Applicable to both candidates and recruiters
 
 ### Explicitly Excluded
 
-- Feature A
-- Feature B (planned for later phase)
+- Automated tests (planned for Phase 3.2 – Testing & Hardening)
+
+- Advanced profile validation rules
+
+- Admin-level profile access
 
 ---
 
 ## 🧱 Architecture Decisions
 
-Document *why* certain decisions were made.
+- Profiles are **self-access only** (`/me` routes); no ID-based access.
 
-- Ownership enforced at service layer
-- Role-based access enforced via middleware
-- DTO validation handled using Zod
-- Global error handling used instead of try/catch in controllers
+- Role-based access is enforced at the **route layer** via middleware.
+
+- Ownership is enforced at the **service layer**, not in controllers.
+
+- User, Candidate, and Recruiter are treated as **separate aggregates**.
+
+- Profile update operations use **PATCH**, not PUT.
+
+- DTOs never include identity fields (`userId`, `role`).
+
+- Responses are shaped via **explicit response mappers** to prevent data leakage.
+
+- Soft delete is implemented at the **User level** using `isActive`.
+
+- Services throw `AppError`; controllers only delegate and forward errors.
 
 ---
 
 ## 🗂 Files Added / Modified
 
-- `src/modules/job/job.entity.ts`
-- `src/modules/job/job.service.ts`
-- `src/middlewares/error.middleware.ts`
+### User Module
+
+- `user.dto.ts`
+
+- `user.service.ts`
+
+- `user.controller.ts`
+
+- `user.routes.ts`
+
+- `user.response.ts`
+
+### Candidate module
+
+- `candidate.dto.ts`
+
+- `candidate.service.ts`
+
+- `candidate.controller.ts`
+
+- `candidate.routes.ts`
+
+- `candidate.response.ts`
+
+### Recruiter module
+
+- `recruiter.dto.ts`
+
+- `recruiter.service.ts`
+
+- `recruiter.controller.ts`
+
+- `recruiter.routes.ts`
+
+- `recruiter.response.ts`
 
 ---
 
 ## 🧪 Testing Performed
 
-- Manual API testing via Postman
-- Verified role-based access (recruiter vs candidate)
-- Verified ownership enforcement
-- Verified error handling behavior
+- Manual API testing using Postman
+
+- Verified:
+
+  - role-based access control
+
+  - ownership enforcement
+
+  - partial updates
+
+  - soft delete behavior
+
+  - validation errors (Zod)
+
+  - response data hygiene (no sensitive fields leaked)
 
 ---
 
 ## ⚠️ Known Limitations / Deferred Work
 
-- Update/Delete job APIs (Phase 3.1)
-- Unit tests (Phase 3.2)
-- Advanced DB error mapping
+- No automated test coverage yet
+
+- Validation rules kept minimal
+
+- Profile history/versioning not supported
+
+These are intentionally deferred to a dedicated testing and hardening phase.
 
 ---
 
 ## 🧠 Key Learnings
 
-Optional but recommended.
+- Clear aggregate boundaries significantly reduce code complexity.
 
-- Importance of FK type alignment (uuid vs string)
-- Importance of global error handling
-- Keeping controllers thin
+- Designing `/me` routes early avoids future authorization bugs.
 
----
+- Response mappers are essential for preventing accidental data exposure.
 
-## ✅ Phase Completion Criteria
+- Thin controllers + expressive services improve maintainability.
 
-- Core APIs functional
-- Authorization enforced
-- Feature tested end-to-end
+- Less code can still represent correct and complete behavior when architecture is sound.
 
 ---
 
-> This document reflects the state of the project **at the end of this phase** and is intentionally not updated further.
+## ✅ Phase Completion Criteria (Met)
+
+- Candidate and recruiter profile APIs implemented
+
+- User-level profile management supported
+
+- Role and ownership enforcement verified
+
+- APIs manually tested
+
+- Phase documentation finalized
+
+- Changes merged into `main`
+
+---
+
+> This document captures the design and implementation decisions as of the completion of Phase 2.1.\
+The phase branch remains frozen for historical and review purposes.
