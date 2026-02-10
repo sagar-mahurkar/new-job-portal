@@ -1,4 +1,4 @@
-# Job Portal Backend
+# Job Portal
 
 Backend service for a job portal supporting recruiters and candidates, built with clean architecture and phased development.
 
