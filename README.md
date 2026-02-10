@@ -73,7 +73,7 @@ Backend service for a job portal supporting recruiters and candidates, built wit
 
 ## ▶️ Running Locally
 
-Configure environment variables in `environments/.env`.
+Configure environment variables in `environments/.env.staging`.
 
 ```bash
 npm install
