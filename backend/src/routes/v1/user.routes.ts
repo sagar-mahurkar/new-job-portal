@@ -6,12 +6,12 @@ import { requireRole } from "@/middlewares/role.middleware";
 const router = Router();
 
 // get user
-router.get("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.getUser)
+router.get("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.getMe)
 
 // update user details
-router.patch("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.updateUser);
+router.patch("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.updateMe);
 
 // delete user -> soft delete -> isActive -> false
-router.delete("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.deactivateUser);
+router.delete("/me", verifyJwt, requireRole("CANDIDATE", "RECRUITER"), UserController.deactivateMe);
 
 export default router;

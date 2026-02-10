@@ -9,9 +9,9 @@ export class UserController {
 
   private static userService = new UserService();
 
-  static async getUser(req: Request, res: Response, next: NextFunction) {
+  static async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const user = await UserController.userService.getUser(req.user.id);
+      const user = await UserController.userService.getMe(req.user.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -23,10 +23,10 @@ export class UserController {
     }
   }
 
-  static async updateUser(req: Request, res:Response, next: NextFunction) {
+  static async updateMe(req: Request, res:Response, next: NextFunction) {
     try {
       const dto = updateUserSchema.parse(req.body);
-      const user = await UserController.userService.updateUser(req.user.id, dto);
+      const user = await UserController.userService.updateMe(req.user.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -38,9 +38,9 @@ export class UserController {
     }
   }
 
-  static async deactivateUser(req: Request, res: Response, next: NextFunction) {
+  static async deactivateMe(req: Request, res: Response, next: NextFunction) {
     try {
-      await UserController.userService.deactivateUser(req.user.id);
+      await UserController.userService.deactivateMe(req.user.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,

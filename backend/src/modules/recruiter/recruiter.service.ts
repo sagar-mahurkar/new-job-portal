@@ -4,7 +4,7 @@ import { recruiterRepository } from "./recruiter.repository";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 
 export class RecruiterService {
-  async getMyProfile(userId: string){
+  async getMe(userId: string){
     const recruiter = await recruiterRepository.findOne({
       where: { userId }
     });
@@ -16,7 +16,7 @@ export class RecruiterService {
     return recruiter;
   }
 
-  async updateMyProfile(userId: string, dto: UpdateRecruiterProfileDto){
+  async updateMe(userId: string, dto: UpdateRecruiterProfileDto){
     const recruiter = await recruiterRepository.findOne({
       where: { userId }
     });

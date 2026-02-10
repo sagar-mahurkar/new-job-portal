@@ -4,7 +4,7 @@ import { AppError } from "@/common/errors/AppError";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 
 export class CandidateService {
-  async getMyProfile(userId: string){
+  async getMe(userId: string){
     const candidate = await candidateRepository.findOne({
       where: { userId }
     });
@@ -16,7 +16,7 @@ export class CandidateService {
     return candidate;
   }
 
-  async updateMyProfile(userId: string, dto: UpdateCandidateProfileDto){
+  async updateMe(userId: string, dto: UpdateCandidateProfileDto){
     const candidate = await candidateRepository.findOne({
       where: { userId }
     });

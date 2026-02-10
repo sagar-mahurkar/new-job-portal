@@ -9,9 +9,9 @@ export class RecruiterController {
 
   private static recruiterService = new RecruiterService();
 
-  static async getMyProfile(req: Request, res: Response, next: NextFunction) {
+  static async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const recruiter = await RecruiterController.recruiterService.getMyProfile(req.user.id);
+      const recruiter = await RecruiterController.recruiterService.getMe(req.user.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -23,7 +23,7 @@ export class RecruiterController {
     }
   }
 
-  static async updateMyProfile(req: Request, res: Response, next: NextFunction) {
+  static async updateMe(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = updateRecruiterProfileSchema.parse(req.body);
       if (Object.keys(dto).length === 0) {
@@ -32,7 +32,7 @@ export class RecruiterController {
           HttpStatusCodes.BAD_REQUEST
         );
       }
-      const recruiter = await RecruiterController.recruiterService.updateMyProfile(req.user.id, dto);
+      const recruiter = await RecruiterController.recruiterService.updateMe(req.user.id, dto);
       sendSuccessResponse(
         res, 
         HttpStatusCodes.OK,

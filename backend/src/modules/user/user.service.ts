@@ -6,7 +6,7 @@ import bcrypt from "bcrypt";
 
 export class UserService {
   // get user
-  async getUser(userId: string) {
+  async getMe(userId: string) {
     const user = await userRepository.findOne({
       where: { id: userId }
     });
@@ -19,7 +19,7 @@ export class UserService {
   }
 
   // update name
-  async updateUser(userId: string, dto: UpdateUserDto) {
+  async updateMe(userId: string, dto: UpdateUserDto) {
     const user = await userRepository.findOne({
       where: { id: userId }
     });
@@ -44,7 +44,7 @@ export class UserService {
   }
 
   // soft delete
-  async deactivateUser(userId: string) {
+  async deactivateMe(userId: string) {
     const user = await userRepository.findOne({
       where: { id: userId }
     });
