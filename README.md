@@ -20,9 +20,27 @@
 
 ### Included
 
-- Feature 1
-- Feature 2
-- Feature 3
+#### 1. Update Candidate Profile
+
+- Update candidate-specific fields (e.g., bio, skills, experience, etc.)
+
+- Profile identified via req.user.id
+
+- Role must be candidate
+
+#### 2. Update Recruiter Profile
+
+- Update recruiter-specific fields:
+
+  - company name
+
+  - sector
+
+  - description
+
+- Profile identified via req.user.id
+
+- Role must be recruiter
 
 ### Explicitly Excluded
 
