@@ -6,12 +6,9 @@ import { requireRole } from "@/middlewares/role.middleware";
 const router = Router();
 
 // get profile
-router.get("/", verifyJwt, requireRole("RECRUITER"), RecruiterController.getMyProfile);
+router.get("/me", verifyJwt, requireRole("RECRUITER"), RecruiterController.getMyProfile);
 
 // update profile
-router.patch("/", verifyJwt, requireRole("RECRUITER"), RecruiterController.updateMyProfile);
-
-// delete profile
-router.delete("/", verifyJwt, requireRole("RECRUITER"), RecruiterController.deleteMyProfile);
+router.patch("/me", verifyJwt, requireRole("RECRUITER"), RecruiterController.updateMyProfile);
 
 export default router;

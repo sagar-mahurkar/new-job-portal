@@ -7,7 +7,8 @@ import { JobPortalDataSource } from "./config/database.config";
 import { HttpStatusCodes } from "./common/constants/http.codes";
 import { env } from "./config/env.config";
 import authRoutes from "@/routes/v1/auth.routes";
-import jobRoutes from "@/routes/v1/job.routes"
+import jobRoutes from "@/routes/v1/job.routes";
+import userRoutes from "@/routes/v1/user.routes";
 import candidateRoutes from "@/routes/v1/candidate.routes";
 import recruiterRoutes from "@/routes/v1/recruiter.routes";
 import { MailTransporter } from "./config/mail.config";
@@ -20,8 +21,9 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/jobs", jobRoutes);
-app.use("/api/v1/candidates/me", candidateRoutes);
-app.use("/api/v1/recruiters/me", recruiterRoutes);
+app.use("api/v1/users", userRoutes)
+app.use("/api/v1/candidates", candidateRoutes);
+app.use("/api/v1/recruiters", recruiterRoutes);
 
 // Health route (NO DB QUERY)
 app.get("/health", (_req, res) => {

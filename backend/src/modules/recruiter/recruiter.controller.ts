@@ -1,15 +1,48 @@
 import { Request, Response, NextFunction } from "express";
-
+import { RecruiterService } from "./recruiter.service";
+import { sendSuccessResponse } from "@/common/utils/response.util";
+import { HttpStatusCodes } from "@/common/constants/http.codes";
+import { mapRecruiterToResponse } from "./recruiter.response";
+import { updateRecruiterProfileSchema } from "./recruiter.dto";
+import { AppError } from "@/common/errors/AppError"
 export class RecruiterController {
+
+  private static recruiterService = new RecruiterService();
+
   static async getMyProfile(req: Request, res: Response, next: NextFunction) {
-    throw new Error("Not implemented");
+    try {
+      const recruiter = await RecruiterController.recruiterService.getMyProfile(req.user.id);
+      sendSuccessResponse(
+        res,
+        HttpStatusCodes.OK,
+        mapRecruiterToResponse(recruiter),
+        "Recruiter profile fetched successfully"
+      )
+    } catch (err) {
+      next(err)
+    }
   }
 
   static async updateMyProfile(req: Request, res: Response, next: NextFunction) {
-    throw new Error("Not implemented");
+    try {
+      const dto = updateRecruiterProfileSchema.parse(req.body);
+      if (Object.keys(dto).length === 0) {
+        throw new AppError(
+          "At least one field must be provided for update",
+          HttpStatusCodes.BAD_REQUEST
+        );
+      }
+      const recruiter = await RecruiterController.recruiterService.updateMyProfile(req.user.id, dto);
+      sendSuccessResponse(
+        res, 
+        HttpStatusCodes.OK,
+        mapRecruiterToResponse(recruiter),
+        "Recruiter profile updated successfully"
+      );
+    } catch (err) {
+      next(err);
+    }
   }
 
-  static async deleteMyProfile(req: Request, res: Response, next: NextFunction) {
-    throw new Error("Not implemented");
-  }
+  // soft delete -> user controllers
 }

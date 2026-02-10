@@ -9,6 +9,7 @@ import {
   signupRecruiterSchema 
 } from "./dtos"
 import { sendSuccessResponse } from "@/common/utils/response.util";
+import { mapUserToResponse } from "../user/user.response";
 export class AuthController {
 
   private static authService = new AuthService();
@@ -20,7 +21,7 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
-        result,
+        [mapUserToResponse(result.user), result.token],
         "Recruiter created successfully"
       )
     } catch (err) {
@@ -36,7 +37,7 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
-        result,
+        [mapUserToResponse(result.user), result.token],
         "Candidate created successfully"
       )
     } catch (err) {
@@ -52,7 +53,7 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
-        result,
+        [mapUserToResponse(result.user), result.token],
         "User logged in successfully"
       )
     } catch (err) {
@@ -100,7 +101,7 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
-        result,
+        [mapUserToResponse(result.user), result.token],
         "User logged in successfully"
       )
     } catch (err) {
