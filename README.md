@@ -21,6 +21,7 @@ Backend service for a job portal supporting recruiters and candidates, built wit
 - Layered architecture:
   Entity → DTO → Repository → Service → Controller → Routes
 - Authentication via JWT
+- Ownership enforcement handled at service layer
 - Role-based authorization via middleware
 - Centralized error handling
 - Database access via TypeORM
@@ -42,14 +43,14 @@ Backend service for a job portal supporting recruiters and candidates, built wit
 
 ### Recruiter
 
-- Sign up & authenticate
+- Sign up & authenticate via OTP or password
 - Create job postings
 - View own job postings
 - Fetch job details with ownership enforcement
 
 ### Candidate
 
-- Sign up & authenticate
+- Sign up & authenticate via OTP or password
 
 ---
 
@@ -71,6 +72,8 @@ Backend service for a job portal supporting recruiters and candidates, built wit
 ---
 
 ## ▶️ Running Locally
+
+Configure environment variables in `environments/.env`.
 
 ```bash
 npm install
