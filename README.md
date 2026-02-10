@@ -8,10 +8,11 @@
 
 ## 🎯 Objective
 
-Describe the primary goal of this phase in 2–3 lines.
+- Allow users to update and manage profile data
 
-Example:
-This phase focuses on implementing recruiter-side job posting functionality with proper authorization and ownership enforcement.
+- Ensure only the owner can modify their profile
+
+- Keep profile logic separate from auth and jobs
 
 ---
 
