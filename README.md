@@ -1,186 +1,102 @@
-# Phase 3.1 – Job Management
+# Job Portal
 
-> Branch: `backend-phase-3.1-job-management`  \
-> Parent branch: `main`  \
-> Status: Completed  
+Backend service for a job portal supporting recruiters and candidates, built using clean layered architecture and phased development.
 
 ---
 
-## 🎯 Objective
+## 🚀 Tech Stack
 
-Extend the recruiter job module to support full lifecycle management of job postings.
-
-This phase introduces:
-
-- Job update capability  
-- Job deletion (hard delete)  
-- Controlled status transitions  
-- Strong ownership enforcement  
-
-The goal is to evolve from simple job creation to complete recruiter-controlled job lifecycle management.
+- Node.js
+- TypeScript
+- Express
+- PostgreSQL
+- TypeORM
+- Zod
+- JWT
 
 ---
 
-## 📦 Scope
+## 🧱 Architecture Overview
 
-### ✅ Included
-
-#### 1. Update Job
-
-Recruiter can update:
-
-- title  
-- description  
-- minimum qualification  
-- job sector  
-- vacancies  
-- status (OPEN ↔ CLOSED)
-
-Features:
-
-- Partial updates supported (PATCH semantics)  
-- Strict DTO validation using Zod  
-- Identity fields excluded from DTO  
-- Ownership enforced via `recruiterId`  
-- Only `RECRUITER` role permitted  
+- Layered architecture:
+  Entity → DTO → Repository → Service → Controller → Routes
+- Authentication via JWT (OTP + password)
+- Role-based authorization via middleware
+- Ownership enforcement handled at service layer
+- Centralized error handling
+- Response mapping to prevent sensitive data leakage
+- Database access via TypeORM
 
 ---
 
-#### 2. Change Job Status
+## 📦 Implemented Phases
 
-Recruiter can manually:
+- Phase 0 – Foundation
+- Phase 1 – Authentication
+- Phase 2 – Authorization & Middleware
+- Phase 2.1 – Profile Management
+- Phase 3 – Job Posting (Recruiter)
+- Phase 3.1 – Job Management (Update/Delete)
 
-- Close job (OPEN → CLOSED)  
-- Reopen job (CLOSED → OPEN)  
-
-Design decisions:
-
-- Status transitions are manual  
-- No automated closure logic  
-- Recruiter fully controls job lifecycle  
+> Phase-specific implementation details are documented in their respective phase branches.
 
 ---
 
-#### 3. Delete Job (Hard Delete)
+## 📌 Current Capabilities
 
-Recruiter can delete only their own jobs.
+### 👤 User (Shared)
 
-Hard delete implemented at repository level.
-
-##### Rationale for Hard Delete
-
-- Jobs are recruiter-controlled resources  
-- `status = CLOSED` already supports lifecycle pause  
-- No requirement for historical archival  
-- Avoids schema complexity (`isActive`, filtering logic, etc.)  
-- Keeps aggregate simple and explicit  
+- Sign up & authenticate via OTP or password
+- Fetch own profile (`/me`)
+- Update profile details
+- Soft delete (deactivate account)
 
 ---
 
-### ❌ Explicitly Excluded
+### 🧑‍💼 Recruiter
 
-- Application logic  
-- Applicant management  
-- Automated status transitions  
-- Analytics/statistics  
-- Audit logging  
-- Public job browsing  
-- Automated tests  
-
-These concerns are deferred to later phases.
+- Create job postings
+- View own job postings
+- Fetch job details with ownership enforcement
+- Update job (partial updates supported)
+- Change job status (OPEN ↔ CLOSED)
+- Delete job (hard delete)
 
 ---
 
-## 🧱 Architecture Decisions
+### 🎓 Candidate
 
-- Ownership enforced directly in repository queries  
-  (`where: { id, recruiterId }`)  
-
-- Role enforcement handled at route layer via middleware  
-
-- Controllers remain thin (validation + delegation only)  
-
-- DTOs strictly exclude identity fields (`id`, `recruiterId`)  
-
-- Update operations use PATCH semantics  
-
-- `Object.assign` used for safe partial entity mutation (after strict validation)  
-
-- Hard delete chosen over soft delete  
-
-- `applicantCount` represents number of applications received  
-  (can exceed `vacancies`)  
-
-- Status lifecycle controlled explicitly by recruiter  
+- Sign up & authenticate via OTP or password
+- Fetch own profile
+- Update candidate-specific profile details
 
 ---
 
-## 🗂 Files Added / Modified
+## 🧪 Testing
 
-### Job Module
-
-- `dtos/update-job.dto.ts`
-- `dtos/job-id-param.dto.ts`
-- `job.service.ts` (update + delete logic added)
-- `job.controller.ts` (PATCH and DELETE endpoints)
-- `job.routes.ts` (PATCH and DELETE routes added)
-
----
-
-## 🧪 Testing Performed
-
-Manual testing via Postman.
-
-Verified:
-
-- Update own job  
-- Cannot update another recruiter’s job  
-- Delete own job  
-- Cannot delete another recruiter’s job  
-- Status change OPEN ↔ CLOSED  
-- Partial update works correctly  
-- Validation errors handled properly  
-- 404 returned for invalid job ID  
-- 403 returned for role violation  
-- Hard delete removes job permanently  
-- No regression in create/get flows  
+- APIs tested manually using Postman
+- Role-based access verified
+- Ownership enforcement verified
+- Validation errors handled via Zod
+- Database constraint errors handled
+- No regression observed after Phase 3.1
 
 ---
 
-## ⚠️ Known Limitations / Deferred Work
+## 🏗️ Upcoming Work
 
-- No audit logging  
-- No job history retention  
-- No automated closing based on application count  
-- No optimistic concurrency control  
-- No automated test coverage  
-- No public job browsing endpoint  
-
-These are intentionally deferred to Phase 3.2 – Testing & Hardening and Phase 4.
+- Phase 3.2 – Testing & Hardening
+- Public job browsing (candidate-facing)
+- Phase 4 – Job Applications
+- Automated test coverage
+- Performance and security improvements
 
 ---
 
-## 🧠 Key Learnings
+## ▶️ Running Locally
 
-- Ownership enforcement is safest when applied at query level.  
-- Hard delete simplifies lifecycle management when historical retention is not required.  
-- Strict DTO validation enables safe usage of `Object.assign`.  
-- PATCH semantics reduce over-validation complexity.  
-- Clear aggregate boundaries reduce accidental coupling between modules.  
-- Separating public vs recruiter job APIs will be important in upcoming phases.  
+Configure environment variables in `environments/.env.staging`.
 
----
-
-## ✅ Phase Completion Criteria (Met)
-
-- Recruiter can update job  
-- Recruiter can delete job  
-- Ownership strictly enforced  
-- Status transitions validated  
-- Manual API testing completed  
-- Documentation finalized  
-- Changes merged into `main`  
-
----
-
-> This document reflects the system state at the end of Phase 3.1 and remains frozen after merge.
+```bash
+npm install
+npm run dev
