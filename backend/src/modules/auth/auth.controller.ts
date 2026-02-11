@@ -13,7 +13,7 @@ import { mapUserToResponse } from "../user/user.response";
 export class AuthController {
 
   private static authService = new AuthService();
-  // TODO: signupRecruiter()
+
   static async signupRecruiter(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = signupRecruiterSchema.parse(req.body);
@@ -21,7 +21,10 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
-        [mapUserToResponse(result.user), result.token],
+        {
+          user: mapUserToResponse(result.user), 
+          accessToken: result.token
+        },
         "Recruiter created successfully"
       )
     } catch (err) {
@@ -29,7 +32,6 @@ export class AuthController {
     }
   }
 
-  // TODO: signupCandidate()
   static async signupCandidate(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = signupCandidateSchema.parse(req.body);
@@ -37,7 +39,10 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
-        [mapUserToResponse(result.user), result.token],
+        {
+          user: mapUserToResponse(result.user), 
+          accessToken: result.token
+        },
         "Candidate created successfully"
       )
     } catch (err) {
@@ -45,7 +50,6 @@ export class AuthController {
     }
   }
 
-  // TODO: loginWithPassword()
   static async loginWithPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = loginPasswordSchema.parse(req.body);
@@ -53,7 +57,10 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
-        [mapUserToResponse(result.user), result.token],
+        {
+          user: mapUserToResponse(result.user), 
+          accessToken: result.token
+        },
         "User logged in successfully"
       )
     } catch (err) {
@@ -61,7 +68,6 @@ export class AuthController {
     }
   }
 
-  // TODO: requestLoginOtp()
   static async requestLoginOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = requestOtpSchema.parse(req.body);
@@ -77,7 +83,6 @@ export class AuthController {
     }
   }
 
-  // TODO: resendLoginOtp()
   static async resendLoginOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = requestOtpSchema.parse(req.body);
@@ -93,7 +98,6 @@ export class AuthController {
     }
   }
 
-  // TODO: loginWithOtp()
   static async loginWithOtp(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = loginOtpSchema.parse(req.body);
@@ -101,7 +105,10 @@ export class AuthController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
-        [mapUserToResponse(result.user), result.token],
+        {
+          user: mapUserToResponse(result.user), 
+          accessToken: result.token
+        },
         "User logged in successfully"
       )
     } catch (err) {
