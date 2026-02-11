@@ -1,5 +1,5 @@
 import { AppError } from "@/common/errors/AppError";
-import { CreateJobDto, GetJobByIdDto, GetMyJobsDto } from "./dtos";
+import { CreateJobDto, GetMyJobsDto, UpdateJobDto } from "./dtos";
 import { jobRepository } from "./job.repository";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 
@@ -30,16 +30,49 @@ export class JobService {
   }
 
   // getJobById
-  async getJobById(recruiterId: string, dto: GetJobByIdDto) {
+  async getJobById(recruiterId: string, jobId: string) {
     const job = await jobRepository.findOne({
-      where: { id: dto.id, recruiterId }
+      where: { id: jobId, recruiterId }
     });
 
     if (!job) {
       throw new AppError("Job not found", HttpStatusCodes.NOT_FOUND)
-    }
+    };
 
     return job;
   }
 
+  // updateJobById
+  async updateJob(recruiterId: string, jobId: string, dto: UpdateJobDto) {
+    const job = await jobRepository.findOne({
+      where: { id: jobId, recruiterId}
+    });
+
+    if (!job) {
+      throw new AppError("Job not found", HttpStatusCodes.NOT_FOUND);
+    };
+
+    // update
+    Object.assign(job, dto);
+
+    // preserve update
+    await jobRepository.save(job);
+
+    return job;
+  }
+
+  // delete job
+  async deleteJob(recruiterId: string, jobId: string){
+    const job = await jobRepository.findOne({
+      where: { id: jobId, recruiterId }
+    });
+
+    if (!job) {
+      throw new AppError("Job not found", HttpStatusCodes.NOT_FOUND)
+    };
+
+    await jobRepository.remove(job);
+
+    return;
+  }
 }

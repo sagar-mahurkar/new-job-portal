@@ -5,13 +5,22 @@ import { requireRole } from "@/middlewares/role.middleware";
 
 const router = Router()
 
+// Apply to ALL routes below
+router.use(verifyJwt, requireRole("RECRUITER"));
+
 // create job
-router.post("/", verifyJwt, requireRole("RECRUITER"), JobController.createJob);
+router.post("/", JobController.createJob);
 
 // get my jobs
-router.get("/me", verifyJwt, requireRole("RECRUITER"), JobController.getMyJobs)
+router.get("/me", JobController.getMyJobs);
 
 // get job by id
-router.get("/:id", verifyJwt, requireRole("RECRUITER"), JobController.getJobById);
+router.get("/:id", JobController.getJobById);
+
+// update job by id
+router.patch("/:id", JobController.updateJob);
+
+// delete job by id
+router.delete("/:id", JobController.deleteJob);
 
 export default router;

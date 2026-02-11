@@ -1,8 +1,8 @@
 # Phase 3.1 – Job Management
 
-> Branch: `backend-phase-3.1-job-management`
-> Parent branch: `main`
-> Status: In Progress
+> Branch: `backend-phase-3.1-job-management`\
+> Parent branch: `main`\
+> Status: In Progress\
 
 ---
 
