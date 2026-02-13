@@ -161,10 +161,7 @@ export class AuthService {
 
     // 2. Validate user existence and active status
     if (!user || !user.isActive) {
-      throw new AppError(
-        "Unable to process OTP request", 
-        HttpStatusCodes.UNAUTHORIZED
-      );
+      return;    // ignore silently
     };
 
     // 3. Prevent resending OTP if existing OTP is still valid
@@ -198,10 +195,7 @@ export class AuthService {
 
     // 2. Validate user existence and active status
     if (!user || !user.isActive) {
-      throw new AppError(
-        "Unable to process OTP request",
-        HttpStatusCodes.UNAUTHORIZED
-      );
+      return;   // ignore silently
     };
 
     // 3. Prevent resending OTP if existing OTP is still valid
