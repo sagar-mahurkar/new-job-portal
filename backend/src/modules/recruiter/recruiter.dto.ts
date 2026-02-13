@@ -8,6 +8,8 @@ export const updateRecruiterProfileSchema = z.object({
   companySector: z.enum(COMPANY_SECTORS).optional(),
 
   description: z.string().min(10).optional()
-});
+})
+.strict()
+.refine(data => Object.keys(data).length > 0);
 
 export type UpdateRecruiterProfileDto = z.infer<typeof updateRecruiterProfileSchema>;

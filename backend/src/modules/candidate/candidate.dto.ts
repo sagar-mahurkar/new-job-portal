@@ -18,6 +18,8 @@ export const updateCandidateProfileSchema = z.object({
   githubUrl: z.url().optional(),
 
   portfolioUrl: z.url().optional()
-}).strict();
+})
+.strict()
+.refine(data => Object.keys(data).length > 0);
 
 export type UpdateCandidateProfileDto = z.infer<typeof updateCandidateProfileSchema>;

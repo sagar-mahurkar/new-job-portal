@@ -25,37 +25,7 @@ export class CandidateService {
       throw new AppError("Candidate profile not found", HttpStatusCodes.NOT_FOUND);
     };
 
-    if (dto.qualification !== undefined) {
-      candidate.qualification = dto.qualification;
-    };
-
-    if (dto.briefIntro !== undefined){
-      candidate.briefIntro = dto.briefIntro;
-    };
-
-    if (dto.resumeUrl !== undefined) {
-      candidate.resumeUrl = dto.resumeUrl;
-    };
-
-    if (dto.experienceMonths !== undefined) {
-      candidate.experienceMonths = dto.experienceMonths;
-    };
-
-    if (dto.currentSector !== undefined) {
-      candidate.currentSector = dto.currentSector;
-    };
-
-    if (dto.linkedinUrl !== undefined) {
-      candidate.linkedinUrl = dto.linkedinUrl;
-    };
-
-    if (dto.githubUrl !== undefined) {
-      candidate.githubUrl = dto.githubUrl;
-    };
-
-    if (dto.portfolioUrl !== undefined) {
-      candidate.portfolioUrl = dto.portfolioUrl;
-    };
+    Object.assign(candidate, dto);
 
     await candidateRepository.save(candidate);
 

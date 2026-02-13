@@ -25,17 +25,7 @@ export class RecruiterService {
       throw new AppError("Recruiter profile not found", HttpStatusCodes.NOT_FOUND);
     };
 
-    if (dto.companyName !== undefined){
-      recruiter.companyName = dto.companyName;
-    };
-
-    if (dto.companySector !== undefined) {
-      recruiter.companySector = dto.companySector;
-    };
-
-    if (dto.description !== undefined){
-      recruiter.description = dto.description;
-    };
+    Object.assign(recruiter, dto);
 
     await recruiterRepository.save(recruiter);
 
