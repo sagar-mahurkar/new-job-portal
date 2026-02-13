@@ -34,7 +34,7 @@ export class AuthService {
     };
 
     // 2. Hash the plain-text password
-    const hashedPassword = await this.hashPassword(dto.password);
+    const hashedPassword = await this.hashPasswordOrOtp(dto.password);
 
     const user = await JobPortalDataSource.transaction(async (manager) => {
       // 3. Create recruiter user entity
@@ -79,7 +79,7 @@ export class AuthService {
     };
 
     // 2. Hash the plain-text password
-    const hashedPassword = await this.hashPassword(dto.password);
+    const hashedPassword = await this.hashPasswordOrOtp(dto.password);
 
     const user = await JobPortalDataSource.transaction(async (manager) => {
       // 3. Create candidate user entity
@@ -134,7 +134,7 @@ export class AuthService {
     };
 
     // 4. Compare provided password with stored hash
-    const isPasswordValid = await this.comparePassword(dto.password, user.password)
+    const isPasswordValid = await this.comparePasswordOrOtp(dto.password, user.password)
 
     if (!isPasswordValid) {
       throw new AppError(
@@ -176,7 +176,8 @@ export class AuthService {
     const otp = this.generateLoginOtp();
 
     // 5. Store OTP and expiry timestamp
-    user.loginOtp = otp;
+    const hashedOtp = await this.hashPasswordOrOtp(otp);
+    user.loginOtp = hashedOtp;
     user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
     await userRepository.save(user);
 
@@ -210,7 +211,8 @@ export class AuthService {
     const otp = this.generateLoginOtp();
 
     // 5. Store new OTP and expiry timestamp
-    user.loginOtp = otp;
+    const hashedOtp = await this.hashPasswordOrOtp(otp);
+    user.loginOtp = hashedOtp;
     user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
     await userRepository.save(user);
 
@@ -227,22 +229,17 @@ export class AuthService {
       where: { email: dto.email }
     });
 
-    if (!user) {
-      throw new AppError("Invalid email or otp", HttpStatusCodes.UNAUTHORIZED);
-    }
-
-    if (!user.isActive) {
-      throw new AppError("Account is disabled", HttpStatusCodes.FORBIDDEN);
-    }
-    
     // 2. Validate OTP existence and expiry
     if (
+      !user ||
+      !user.isActive ||
       !user.loginOtp ||
-      user.loginOtp !== dto.loginOtp ||
+      this.comparePasswordOrOtp(dto.loginOtp, user.loginOtp) ||
+      !user.loginOtpExpiresAt ||
       user.loginOtpExpiresAt < new Date()
     ) {
       throw new AppError(
-        "Invalid email or otp", 
+        "Invalid or expired otp", 
         HttpStatusCodes.UNAUTHORIZED
       );
     }
@@ -263,18 +260,18 @@ export class AuthService {
   // Private helper functions
   // ============================
 
-  // hashPassword()
-  private async hashPassword(password: string): Promise<string> {
+  // hashPasswordOrOtp()
+  private async hashPasswordOrOtp(passwordOrOtp: string): Promise<string> {
     const saltRounds = 10;
-    return bcrypt.hash(password, saltRounds);
+    return bcrypt.hash(passwordOrOtp, saltRounds);
   }
 
   // comparePassword()
-  private async comparePassword(
-    plainPassword: string, 
-    hashedPassword: string
+  private async comparePasswordOrOtp(
+    plainPasswordOrOtp: string, 
+    hashedPasswordOrOtp: string
   ): Promise<boolean> {
-    return bcrypt.compare(plainPassword, hashedPassword);
+    return bcrypt.compare(plainPasswordOrOtp, hashedPasswordOrOtp);
   }
 
   // generateJwt()
