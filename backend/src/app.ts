@@ -10,6 +10,7 @@ import { HttpStatusCodes } from "./common/constants/http.codes";
 import { requestLogger } from "./middlewares/requestLogger.middleware";
 import { JobPortalDataSource } from "./config/database.config";
 import { logger } from "./config/logger.config";
+import { AppError } from "@/common/errors/AppError"
 
 // Express app initialization
 const app = express();
@@ -26,15 +27,18 @@ app.use(express.json({ limit: "10kb" }));
 // Request size limit configuration
 
 // Content-Type enforcement middleware
-app.use((req, res, next) => {
+app.use((req, _res, next) => {
   if (req.method !== "GET" && !req.is("application/json")) {
-    return res.status(HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE).json({
-      success: false,
-      message: "Unsupported Media Type"
-    });
+    return next(
+      new AppError(
+        "Unsupported Media Type",
+        HttpStatusCodes.UNSUPPORTED_MEDIA_TYPE
+      )
+    );
   }
   next();
-})
+});
+
 
 // Health route (NO DB QUERY)
 app.get("/health", (_req, res) => {
@@ -55,11 +59,13 @@ app.use("/api/v1/candidates", candidateRoutes);
 app.use("/api/v1/recruiters", recruiterRoutes);
 
 // 404 Not Found handler
-app.use((req, res) => {
-  res.status(HttpStatusCodes.NOT_FOUND).json({
-    success: false,
-    message: `Route ${req.method} ${req.originalUrl} not found`
-  });
+app.use((req, _res, next) => {
+  next(
+    new AppError(
+      `Route ${req.method} ${req.originalUrl} not found`,
+      HttpStatusCodes.NOT_FOUND
+    )
+  );
 });
 
 // Global error handling middleware
