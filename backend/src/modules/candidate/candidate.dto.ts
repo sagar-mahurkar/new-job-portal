@@ -20,6 +20,8 @@ export const updateCandidateProfileSchema = z.object({
   portfolioUrl: z.url().optional()
 })
 .strict()
-.refine(data => Object.keys(data).length > 0);
+.refine(data => Object.keys(data).length > 0,
+ { message: "At least one field must be provided" }
+);
 
 export type UpdateCandidateProfileDto = z.infer<typeof updateCandidateProfileSchema>;

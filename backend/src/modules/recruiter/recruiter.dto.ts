@@ -10,6 +10,8 @@ export const updateRecruiterProfileSchema = z.object({
   description: z.string().min(10).optional()
 })
 .strict()
-.refine(data => Object.keys(data).length > 0);
+.refine(data => Object.keys(data).length > 0,
+ { message: "At least one field must be provided" }
+);
 
 export type UpdateRecruiterProfileDto = z.infer<typeof updateRecruiterProfileSchema>;
