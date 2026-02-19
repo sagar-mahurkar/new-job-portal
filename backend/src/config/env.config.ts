@@ -14,7 +14,7 @@ dotenv.config({ path: envPath });
 
 // Define env schema
 const envSchema = z.object({
-  NODE_ENV: z.enum(["preprod", "staging"]),
+  NODE_ENV: z.enum(["preprod", "staging", "test"]),
 
   POSTGRES_HOST: z.string().default("0.0.0.0"),
   POSTGRES_PORT: z.coerce.number().default(5432),
