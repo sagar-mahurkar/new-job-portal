@@ -46,7 +46,7 @@ describe("loginOtpSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("should fail for null password format", () => {
+  it("should fail for null otp format", () => {
     const result = loginOtpSchema.safeParse({
       email: "john@example.com",
       loginOtp: null
@@ -54,6 +54,25 @@ describe("loginOtpSchema", () => {
 
     expect(result.success).toBe(false);
   });
+
+  it("should fail for empty string email format", () => {
+    const result = loginOtpSchema.safeParse({
+      email: "",
+      loginOtp: "123456"
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("should fail for empty string otp format", () => {
+    const result = loginOtpSchema.safeParse({
+      email: "john@example.com",
+      loginOtp: ""
+    });
+
+    expect(result.success).toBe(false);
+  });
+
 
   it("should fail for email as number format", () => {
     const result = loginOtpSchema.safeParse({

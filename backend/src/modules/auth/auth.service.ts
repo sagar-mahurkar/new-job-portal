@@ -178,7 +178,7 @@ export class AuthService {
     // 5. Store OTP and expiry timestamp
     const hashedOtp = await this.hashPasswordOrOtp(otp);
     user.loginOtp = hashedOtp;
-    user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
+    user.loginOtpExpiresAt = new Date(Date.now()  + 15 * 60 * 1000);
     await userRepository.save(user);
 
     // 6. send OTP via email/SMS
@@ -213,7 +213,7 @@ export class AuthService {
     // 5. Store new OTP and expiry timestamp
     const hashedOtp = await this.hashPasswordOrOtp(otp);
     user.loginOtp = hashedOtp;
-    user.loginOtpExpiresAt = new Date(Date.now()  + 5 * 60 * 1000);
+    user.loginOtpExpiresAt = new Date(Date.now()  + 15 * 60 * 1000);
     await userRepository.save(user);
 
     // 6. send OTP via email/SMS
@@ -234,7 +234,6 @@ export class AuthService {
       !user ||
       !user.isActive ||
       !user.loginOtp ||
-      this.comparePasswordOrOtp(dto.loginOtp, user.loginOtp) ||
       !user.loginOtpExpiresAt ||
       user.loginOtpExpiresAt < new Date()
     ) {
@@ -244,10 +243,23 @@ export class AuthService {
       );
     }
 
-    // 3. Clear OTP after successful verification
+    // 3. Compare OTP
+    const isOtpValid = await this.comparePasswordOrOtp(
+      dto.loginOtp,
+      user.loginOtp
+    )
+
+    if (!isOtpValid) {
+      throw new AppError(
+        "Invalid or expired otp", 
+        HttpStatusCodes.UNAUTHORIZED
+      );
+    }
+
+    // 4. Clear OTP after successful verification
     await this.clearLoginOtp(user);
 
-    // 4. generate JWT for authenticated session
+    // 5. generate JWT for authenticated session
     const token = this.generateJwt(user.id, user.role);
 
     return { 
