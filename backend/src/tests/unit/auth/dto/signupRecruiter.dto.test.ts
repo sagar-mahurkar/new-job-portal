@@ -50,6 +50,17 @@ describe("signupRecruiterSchema", () => {
     expect(result.success).toBe(false);
   });
 
+  // password = number
+  it("should fail for number password format", async () => {
+    const data = {
+      email: "john@example.com",
+      password: 12345678
+    }
+    const result = signupRecruiterSchema.safeParse(data);
+
+    expect(result.success).toBe(false);
+  })
+
   it("should fail if extra field is provided", () => {
     const data = {
       name: "John Doe",

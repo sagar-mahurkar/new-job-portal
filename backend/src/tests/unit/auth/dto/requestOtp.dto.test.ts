@@ -11,16 +11,6 @@ describe("requestOtpSchema", () => {
     expect(result.success).toBe(true);
   });
 
-  it("should validate correct payload", () => {
-    const data = {
-      email: "test@example.com",
-    };
-
-    const result = requestOtpSchema.safeParse(data);
-
-    expect(result.success).toBe(true);
-  });
-
   it("should fail for email is missing", () => {
     const data = {
     };
