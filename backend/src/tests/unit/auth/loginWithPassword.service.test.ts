@@ -5,7 +5,7 @@
 jest.mock("@/config/env.config", () => ({
   env: {
     NODE_ENV: "test",
-    POSTGRES_HOST: "localhost",
+    POSTGRES_HOST: "0.0.0.0",
     POSTGRES_PORT: 5432,
     POSTGRES_USERNAME: "test",
     POSTGRES_PASSWORD: "test",
