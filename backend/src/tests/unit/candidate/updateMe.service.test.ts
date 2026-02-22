@@ -25,15 +25,14 @@ jest.mock("@/modules/candidate/candidate.repository", () => ({
   }
 }))
 
-
-import { CandidateQualification, CompanySector } from "@/common/enums";
 /**
  * --------------------------------------------------------------------
  * Imports (AFTER MOCKS)
  * --------------------------------------------------------------------
- */
+*/
 import { candidateRepository } from "@/modules/candidate/candidate.repository";
 import { CandidateService } from "@/modules/candidate/candidate.service";
+import { CandidateQualification, CompanySector } from "@/common/enums";
 
 const candidateService = new CandidateService();
 

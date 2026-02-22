@@ -31,8 +31,15 @@ export class UserService {
     if (dto.name !== undefined) {
       user.name = dto.name;
     }
-    if (dto.email !== undefined) {
-      user.email = dto.email;
+    if (dto.email !== undefined && dto.email !== user.email) {
+      const existingUser = await userRepository.findOne({
+        where: { email: dto.email }
+      });
+      if (existingUser) {
+        throw new AppError("User with email already exists", HttpStatusCodes.CONFLICT)
+      } else {
+        user.email = dto.email;
+      }
     }
     if (dto.password !== undefined) {
       user.password = await this.hashPassword(dto.password);
