@@ -39,7 +39,11 @@ jest.mock("fs/promises", () => ({
   readFile: jest.fn(),
 }));
 
-
+/**
+ * --------------------------------------------------------------------
+ * Imports (AFTER MOCKS)
+ * --------------------------------------------------------------------
+ */
 import { userRepository } from "@/modules/user/user.repository";
 import { AuthService } from "@/modules/auth/auth.service";
 import bcrypt from "bcrypt";
