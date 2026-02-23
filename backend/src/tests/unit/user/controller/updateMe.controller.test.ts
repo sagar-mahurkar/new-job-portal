@@ -17,7 +17,7 @@ jest.mock("@/config/env.config", () => ({
   }
 }));
 
-jest.mock("@/modules/recruiter/recruiter.service");
+jest.mock("@/modules/user/user.service");
 
 /**
  * --------------------------------------------------------------------
@@ -25,13 +25,12 @@ jest.mock("@/modules/recruiter/recruiter.service");
  * --------------------------------------------------------------------
  */
 
-import { RecruiterController } from "@/modules/recruiter/recruiter.controller";
-import { RecruiterService } from "@/modules/recruiter/recruiter.service";
-import { CompanySector} from "@/common/enums";
+import { UserController } from "@/modules/user/user.controller";
+import { UserService } from "@/modules/user/user.service";
 
-const mockedRecruiterService = RecruiterService as jest.MockedClass<typeof RecruiterService>;
+const mockedUserService = UserService as jest.MockedClass<typeof UserService>;
 
-describe("RecruiterController.updateMe", () => {
+describe("UserController.updateMe", () => {
   let req: any;
   let res: any;
   let next: jest.Mock;
@@ -51,38 +50,42 @@ describe("RecruiterController.updateMe", () => {
     next = jest.fn();
   });
 
-  it("should return 200 with Recruiter's updated profile", async () => {
-    const mockRecruiterProfile: any = {
-      userId: "1",
-      companyName: "XYZ Pvt. Ltd.",
-      companySector: "IT" as CompanySector,
-      description: "A software company",
+  it("should return 200 with User's updated profile", async () => {
+    const mockUserProfile: any = {
+      id: "1",
+      name: "John",
+      email: "john@example.com",
+      password: "hashed-password123",
+      role: "RECRUITER",
+      loginOtp: undefined,
+      loginOtpExpiresAt: undefined,
+      isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date(),
-    }
+      updatedAt: new Date()
+    };
 
-    mockedRecruiterService.prototype.updateMe.mockResolvedValue(mockRecruiterProfile);
+    mockedUserService.prototype.updateMe.mockResolvedValue(mockUserProfile);
 
     req.body = {
-      companyName: "XYZ Pvt. Ltd.",
-      companySector: "IT" as CompanySector,
-      description: "A software company",
+      name: "John",
+      email: "john@example.com",
+      password: "hashed-password123"
     }
 
-    await RecruiterController.updateMe(req, res, next);
+    await UserController.updateMe(req, res, next);
 
-    expect(mockedRecruiterService.prototype.updateMe).toHaveBeenCalledWith("1", req.body);
+    expect(mockedUserService.prototype.updateMe).toHaveBeenCalledWith("1", req.body);
     expect(res.status).toHaveBeenCalledWith(200);
 
     const jsonResponse = (res.json as jest.Mock).mock.calls[0][0];
     expect(jsonResponse.success).toBe(true);
     expect(jsonResponse.data).toEqual({
-      userId: "1",
-      companyName: "XYZ Pvt. Ltd.",
-      companySector: "IT" as CompanySector,
-      description: "A software company",
+      id: "1",
+      name: "John",
+      email: "john@example.com",
+      role: "RECRUITER"
     })
-    expect(jsonResponse.message).toBe("Recruiter profile updated successfully");
+    expect(jsonResponse.message).toBe("User updated successfully");
     expect(jsonResponse.data).not.toHaveProperty("password");
     expect(jsonResponse.data).not.toHaveProperty("loginOtp");
     expect(jsonResponse.data).not.toHaveProperty("createdAt");
@@ -93,16 +96,16 @@ describe("RecruiterController.updateMe", () => {
   it("should call next on service error", async () => {
     const error = new Error("fail");
 
-    mockedRecruiterService.prototype.updateMe
+    mockedUserService.prototype.updateMe
       .mockRejectedValue(error);
 
     req.body = {
-      companyName: "XYZ Pvt. Ltd.",
-      companySector: "IT" as CompanySector,
-      description: "A software company",
+      name: "John",
+      email: "john@example.com",
+      password: "hashed-password123"
     }
     
-    await RecruiterController.updateMe(req, res, next);
+    await UserController.updateMe(req, res, next);
 
     expect(next).toHaveBeenCalledWith(error);
     expect(res.status).not.toHaveBeenCalled();

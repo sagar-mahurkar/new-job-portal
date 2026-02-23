@@ -32,7 +32,7 @@ import { CompanySector, CandidateQualification } from "@/common/enums";
 
 const mockedCandidateService = CandidateService as jest.MockedClass<typeof CandidateService>;
 
-describe("CandidateService.getMe", () => {
+describe("CandidateController.getMe", () => {
   let req: any;
   let res: any;
   let next: jest.Mock;

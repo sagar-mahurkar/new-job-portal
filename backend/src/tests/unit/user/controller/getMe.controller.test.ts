@@ -17,7 +17,7 @@ jest.mock("@/config/env.config", () => ({
   }
 }));
 
-jest.mock("@/modules/recruiter/recruiter.service");
+jest.mock("@/modules/user/user.service");
 
 
 /**
@@ -26,13 +26,12 @@ jest.mock("@/modules/recruiter/recruiter.service");
  * ----------------------------------------------------------
  */
 
-import { RecruiterController } from "@/modules/recruiter/recruiter.controller";
-import { RecruiterService } from "@/modules/recruiter/recruiter.service";
-import { CompanySector } from "@/common/enums";
+import { UserController } from "@/modules/user/user.controller";
+import { UserService } from "@/modules/user/user.service";
 
-const mockedRecruiterService = RecruiterService as jest.MockedClass<typeof RecruiterService>;
+const mockedUserService = UserService as jest.MockedClass<typeof UserService>;
 
-describe("RecruiterController.getMe", () => {
+describe("UserController.getMe", () => {
   let req: any;
   let res: any;
   let next: jest.Mock;
@@ -52,32 +51,36 @@ describe("RecruiterController.getMe", () => {
     next = jest.fn();
   });
 
-  it("should return 200 with mapped recruiter profile", async () => {
-    const mockRecruiterProfile: any = {
-      userId: "1",
-      companyName: "XYZ Pvt. Ltd.",
-      companySector: "IT" as CompanySector,
-      description: "A software company",
+  it("should return 200 with mapped user profile", async () => {
+    const mockUserProfile: any = {
+      id: "1",
+      name: "John",
+      email: "john@example.com",
+      password: "hashed-password123",
+      role: "RECRUITER",
+      loginOtp: undefined,
+      loginOtpExpiresAt: undefined,
+      isActive: true,
       createdAt: new Date(),
-      updatedAt: new Date(),
+      updatedAt: new Date()
     };
-    mockedRecruiterService.prototype.getMe.mockResolvedValue(mockRecruiterProfile);
+    mockedUserService.prototype.getMe.mockResolvedValue(mockUserProfile);
 
-    await RecruiterController.getMe(req, res, next);
+    await UserController.getMe(req, res, next);
 
-    expect(mockedRecruiterService.prototype.getMe)
+    expect(mockedUserService.prototype.getMe)
     .toHaveBeenCalledWith("1");
 
     expect(res.status).toHaveBeenCalledWith(200);
     const jsonResponse = (res.json as jest.Mock).mock.calls[0][0];
     expect(jsonResponse.success).toBe(true);
     expect(jsonResponse.data).toEqual({
-        userId: "1",
-        companyName: "XYZ Pvt. Ltd.",
-        companySector: "IT" as CompanySector,
-        description: "A software company"
+        id: "1",
+        name: "John",
+        email: "john@example.com",
+        role: "RECRUITER",
       })
-    expect(jsonResponse.message).toBe("Recruiter profile fetched successfully")
+    expect(jsonResponse.message).toBe("User fetched successfully")
     expect(jsonResponse.data).not.toHaveProperty("password");
     expect(jsonResponse.data).not.toHaveProperty("loginOtp");
     expect(jsonResponse.data).not.toHaveProperty("createdAt");
@@ -88,10 +91,10 @@ describe("RecruiterController.getMe", () => {
   it("should call next on service error", async () => {
     const error = new Error("fail");
 
-    mockedRecruiterService.prototype.getMe
+    mockedUserService.prototype.getMe
       .mockRejectedValue(error);
 
-    await RecruiterController.getMe(req, res, next);
+    await UserController.getMe(req, res, next);
 
     expect(next).toHaveBeenCalledWith(error);
     expect(res.status).not.toHaveBeenCalled();

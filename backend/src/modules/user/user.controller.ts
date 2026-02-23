@@ -45,7 +45,7 @@ export class UserController {
         res,
         HttpStatusCodes.OK,
         null,
-        "User deleted successfully"
+        "User deactivated successfully"
       )
     } catch (err) {
       next(err)
