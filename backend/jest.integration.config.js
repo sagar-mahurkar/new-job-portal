@@ -4,16 +4,16 @@ module.exports = {
   testEnvironment: 'node',
 
   roots: ['<rootDir>/src'],
-  testMatch: ['**/tests/unit/**/*.test.ts'],
+
+  testMatch: ['**/tests/integration/**/*.test.ts'],
+
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
 
-  collectCoverage: true,
-  coverageDirectory: 'coverage',
-
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/dist/',
+  setupFilesAfterEnv: [
+    "<rootDir>/src/tests/setup/integration.setup.ts"
   ],
+
+  collectCoverage: false,
 };

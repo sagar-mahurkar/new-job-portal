@@ -10,7 +10,7 @@ import { UserRole } from "@/common/enums"
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
 import { Candidate } from "@/modules/candidate/candidate.entity"
 
-@Entity({ name: "users", synchronize: false })
+@Entity({ name: "users", synchronize: true })
 export class User {
   @PrimaryGeneratedColumn("uuid")
   id: string;

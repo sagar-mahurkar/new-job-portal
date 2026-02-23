@@ -17,7 +17,7 @@ import {
 } from "@/common/enums"
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
 
-@Entity({ name: "jobs", synchronize: false})
+@Entity({ name: "jobs", synchronize: true})
 export class Job {
   @PrimaryGeneratedColumn("uuid")
   id: string;

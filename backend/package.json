@@ -5,9 +5,10 @@
   "main": "index.js",
   "scripts": {
     "dev": "NODE_ENV=staging nodemon --exec ts-node -r tsconfig-paths/register src/index.ts",
-    "test": "cross-env NODE_ENV=test jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:watch": "cross-env jest --watch",
+    "test:coverage": "cross-env jest --coverage",
+    "test:unit": "cross-env jest --config jest.config.js",
+    "test:integration": "cross-env NODE_ENV=test jest --config jest.integration.config.js --runInBand"
   },
   "keywords": [],
   "author": "",

@@ -16,7 +16,7 @@ import {
 } from "@/common/enums";
 import { User } from "@/modules/user/user.entity";
 
-@Entity({ name: "candidates", synchronize: false})
+@Entity({ name: "candidates", synchronize: true})
 export class Candidate {
   @PrimaryColumn("uuid")
   userId: string;
