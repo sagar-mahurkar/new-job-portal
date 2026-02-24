@@ -1,6 +1,5 @@
 import request from "supertest";
 import app from "@/app";
-import { CandidateQualification, CompanySector } from "@/common/enums";
 
 describe("Candidate Profile - Integration", () => {
   describe("Candidate Profile - getMe", () => {
@@ -245,7 +244,7 @@ describe("Candidate Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const profileUpdate = {
-        currentSector: "IT" as CompanySector,
+        currentSector: "IT",
         experienceMonths: 24,
         qualification: "GRADUATE",
         briefIntro: "A software engineer",
