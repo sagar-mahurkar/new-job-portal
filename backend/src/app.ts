@@ -28,7 +28,12 @@ app.use(express.json({ limit: "10kb" }));
 
 // Content-Type enforcement middleware
 app.use((req, _res, next) => {
-  if (req.method !== "GET" && !req.is("application/json")) {
+  const methodsWithBody = ["POST", "PUT", "PATCH"];
+
+  if (
+    methodsWithBody.includes(req.method) &&
+    !req.is("application/json")
+  ) {
     return next(
       new AppError(
         "Unsupported Media Type",
@@ -36,6 +41,7 @@ app.use((req, _res, next) => {
       )
     );
   }
+
   next();
 });
 
