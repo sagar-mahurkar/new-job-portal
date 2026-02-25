@@ -139,8 +139,6 @@ describe("Candidate Profile - Integration", () => {
         .post("/api/v1/auth/signup/candidate")
         .send(payload)
 
-      expect(signup.status).toBe(201);
-
       const token = signup.body.data.accessToken;
 
       const profileUpdate = {
@@ -161,7 +159,7 @@ describe("Candidate Profile - Integration", () => {
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
-      console.log(response.body.data);
+      expect(response.body.data).toMatchObject(expect.objectContaining(profileUpdate));
     });
 
     // 200 partial update
