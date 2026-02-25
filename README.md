@@ -1,289 +1,188 @@
-# Phase 3.2 – Testing & Hardening
+# Job Portal
 
-> Branch: `backend-phase-3.2-testing-and-hardening`  
-> Parent branch: `main`  
-> Status: Completed  
+Backend service for a job portal supporting recruiters and candidates, built using clean layered architecture and phased development.
 
 ---
 
-## 🎯 Objective
+## 🚀 Tech Stack
 
-Stabilize the backend through structured testing and defensive hardening.
-
-This phase transitions the system from feature-complete to reliability-focused by introducing:
-
-- Unit testing (service, controller, DTO, middleware)
-- Integration testing (HTTP + DB lifecycle)
-- Content-type enforcement
-- JWT validation hardening
-- Role-based access validation coverage
-- Deterministic database test setup
-- Logger isolation for test environment
-
-The goal is to ensure correctness, stability, and predictable behavior before advancing to feature-heavy phases.
+- Node.js
+- TypeScript
+- Express
+- PostgreSQL
+- TypeORM
+- Zod
+- JWT
+- Jest (Unit & Integration Testing)
 
 ---
 
-## 📦 Scope
+## 🧱 Architecture Overview
 
-### ✅ Included
+- Layered architecture:
+  Entity → DTO → Repository → Service → Controller → Routes
+- Authentication via JWT (OTP + password)
+- Role-based authorization via middleware
+- Ownership enforcement handled at query level
+- Centralized error handling
+- Strict DTO validation using Zod
+- Response mapping to prevent sensitive data leakage
+- Database access via TypeORM
+- Content-Type enforcement for non-GET routes
+- Deterministic integration test database lifecycle
 
-### 1️⃣ Unit Testing
+---
 
-Structured test hierarchy implemented:
-unit/
-auth/
-candidate/
-recruiter/
-user/
+## 📦 Implemented Phases
 
-Covered layers:
+- Phase 0 – Foundation
+- Phase 1 – Authentication
+- Phase 2 – Authorization & Middleware
+- Phase 2.1 – Profile Management
+- Phase 3 – Job Posting (Recruiter)
+- Phase 3.1 – Job Management (Update/Delete)
+- Phase 3.2 – Testing & Hardening
 
-- DTO validation (Zod schemas)
-- Service logic
+> Detailed phase documentation is maintained in phase branches and project documentation.
+
+---
+
+## 📌 Current Capabilities
+
+### 👤 User (Shared)
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile (`/me`)
+- Update profile details (name, email, password)
+- Soft delete (deactivate account)
+- Email uniqueness enforced
+- Sensitive fields excluded from API responses
+
+---
+
+### 🧑‍💼 Recruiter
+
+- Create job postings
+- View own job postings
+- Fetch job details with ownership enforcement
+- Update job (partial updates supported)
+- Change job status (OPEN ↔ CLOSED)
+- Delete job (hard delete)
+- Role strictly enforced via middleware
+
+---
+
+### 🎓 Candidate
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile
+- Update candidate-specific profile details
+- Role-protected routes
+
+---
+
+## 🔐 Security & Hardening
+
+- JWT verification middleware
+- Role-based access control
+- Ownership enforcement in repository queries
+- Strict DTO validation (reject unknown fields)
+- Content-Type guard (`415 Unsupported Media Type`)
+- Centralized error mapping
+- Sensitive field filtering (password, OTP, timestamps)
+- Silent handling for invalid OTP requests
+
+---
+
+## 🧪 Testing
+
+### ✅ Unit Testing
+
+- DTO validation
+- Service logic (happy paths + edge cases)
 - Controller behavior
-- Middleware (JWT + RBAC)
+- JWT middleware
+- Role middleware
 
-#### Service Layer
+### ✅ Integration Testing
 
-Verified:
-
-- Happy paths
-- Conflict scenarios (409)
-- Not found (404)
-- Role restrictions
-- Repository failure propagation
-- Conditional logic branches
-- Silent success cases (OTP request)
-
-#### Controller Layer
-
-Verified:
-
-- Proper status codes
-- Response contract enforcement
-- Sensitive field exclusion
-- Delegation correctness
-- `next()` propagation on error
-
-#### Middleware
-
-##### verifyJwt
-
-- Missing header → 401
-- Invalid token → 401
-- Missing `sub` or `role` → 401
-- Inactive user → 401
-- Valid token attaches normalized user
-
-##### requireRole
-
-- Missing user → 401
-- Unauthorized role → 403
-- Valid role → next()
-
----
-
-### 2️⃣ Integration Testing
-
-Dedicated integration test structure:
-integration/
-auth/
-candidate/
-recruiter/
-user/
-
-#### Infrastructure
-
-- Test-specific Jest config
-- Separate DB lifecycle setup
-- `synchronize(true)` before each test
-- Single-threaded execution (`--runInBand`)
-- Open handle detection enabled
-- Test environment logger isolation
-
----
-
-### 3️⃣ Auth Integration Coverage
-
-Tested:
-
-- Signup (Recruiter & Candidate)
-- Duplicate email conflict
-- Password login (positive & negative)
-- OTP request
-- OTP verification
-- Expired OTP
-- Silent OTP behavior for invalid users
-
----
-
-### 4️⃣ Profile Integration Coverage
-
-#### Candidate
-
-- GET profile
-- PATCH profile (full + partial)
-- Validation errors
-- 401 / 403 enforcement
-- 415 content-type enforcement
-
-#### Recruiter
-
-- GET profile
-- PATCH profile
-- Ownership enforcement
-
-#### User
-
-- GET profile
-- PATCH profile
-- Email conflict handling
-- Password update
-- Deactivate (DELETE)
-
----
-
-### 5️⃣ Security Hardening
-
-#### Content-Type Enforcement
-
-Non-GET routes require `application/json`.
-
-- Invalid content-type → 415
-- Prevents malformed payloads
-
-#### Sensitive Field Protection
-
-Ensured excluded from responses:
-
-- password
-- loginOtp
-- loginOtpExpiresAt
-- timestamps (where not needed)
-
-Response contracts strictly validated.
-
----
-
-### 6️⃣ Database Stabilization
-
-Resolved:
-
-- Deadlocks from parallel test execution
-- Open handle leaks
-- Race conditions during `synchronize(true)`
-- Duplicate email test interference
-
-Implemented:
-
-- Unique email per test
-- Controlled DB lifecycle
-- Deterministic teardown
-
----
-
-## ❌ Explicitly Excluded
-
-- Job module integration tests
-- Application module integration tests
-- Dashboard aggregation tests
-
-These are deferred to a later sprint after Phase 4 & 5 implementation stabilizes.
-
----
-
-## 🧱 Architecture Decisions
-
-- Strict separation: unit vs integration
-- Service layer tested in isolation via mocks
-- Controllers tested with service mocks
-- Integration tests use real DB
-- Logger suppressed in test environment
-- No external service mocking at integration level
-- DB reset per test for isolation
-- Validation enforced at controller boundary
-- Ownership enforced at query layer
-
----
-
-## 🗂 Files Added / Modified
-
-### Testing Infrastructure
-
-- `jest.integration.config.js`
-- `integration.setup.ts`
-- Unit test directory restructuring
-
-### Middlewares
-
-- `verifyJwt` test suite
-- `requireRole` test suite
-
-### Modules Covered
-
-- Auth (DTO, service, controller, integration)
-- Candidate (service, controller, integration)
-- Recruiter (service, controller)
-- User (service, controller, integration)
-
----
-
-## 🧪 Testing Performed
-
-Automated tests only.
-
-Validated:
-
-- Role enforcement
-- Ownership enforcement
+- Auth flows (signup, login, OTP)
+- Profile flows (candidate, recruiter, user)
 - Conflict scenarios
-- Silent flows
-- DTO strictness
-- Content-type guard
-- Error propagation
-- Real DB persistence
-- Token validation
-- Edge cases (expired OTP, duplicate signup)
+- Validation failures
+- Role enforcement
+- Content-Type enforcement
+- Real database lifecycle per test
+
+Testing stack:
+
+- Jest
+- Supertest
+- Dedicated test DB
+- Controlled schema reset
+- Serial execution to prevent deadlocks
 
 ---
 
-## ⚠️ Known Limitations / Deferred Work
+## 🏗️ Upcoming Work
 
-- Job CRUD integration coverage pending
-- Application integration coverage pending
-- Dashboard aggregation testing pending
-- No load testing
-- No performance benchmarking
-- No contract testing (OpenAPI-based)
-
----
-
-## 🧠 Key Learnings
-
-- Test isolation requires deterministic DB resets.
-- Content-type enforcement prevents subtle integration failures.
-- Ownership checks are safest at query layer.
-- Silent flows must be explicitly tested.
-- Logger noise must be controlled in CI.
-- Integration tests require serial execution to avoid schema deadlocks.
-- Unique test data prevents flaky failures.
-- Strict DTO validation simplifies service logic.
+- Phase 4 – Job Applications (Candidate Side)
+- Phase 5 – Dashboard & Aggregation APIs
+- Job module integration coverage
+- Application module integration coverage
+- Public job browsing endpoints
+- Performance optimizations
+- Load testing
+- CI pipeline integration
 
 ---
 
-## ✅ Phase Completion Criteria (Met)
+## ▶️ Running Locally
 
-- Unit coverage across core modules
-- Middleware validated
-- Auth fully integration-tested
-- Profile flows integration-tested
-- Content-type guard enforced
-- Test database lifecycle stabilized
-- No open handle leaks
-- Logger isolated in test environment
-- Phase merged into `main`
+Configure environment variables in:
+
+environments/.env.staging
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run development server:
+
+```bash
+npm run dev
+```
+
+Run unit tests:
+
+```bash
+npm run test:unit
+```
+
+Run integration tests:
+
+```bash
+Run integration tests:
+```
+
+## 📌 Project Status
+
+Backend foundation stabilized.
+
+Core modules implemented and hardened.
+
+Ready for Phase 4 feature expansion.
 
 ---
 
-> This document reflects the system state at the end of Phase 3.2 and remains frozen after merge.
+This version reflects:
+
+- Phase 3.2 completed
+- Testing included
+- Hardening added
+- Deferred job/application testing correctly positioned
+- Clean main-branch documentation
+
+You’re now officially transitioning into feature expansion phase.
