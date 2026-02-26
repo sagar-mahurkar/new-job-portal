@@ -19,7 +19,7 @@ import {
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
 import { Application } from "../application/application.entity";
 
-@Entity({ name: "jobs", synchronize: true})
+@Entity({ name: "jobs", synchronize: false})
 export class Job {
   @PrimaryGeneratedColumn("uuid")
   id: string;

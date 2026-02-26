@@ -11,7 +11,7 @@ import {
 import { User } from "@/modules/user/user.entity";
 import { COMPANY_SECTORS, CompanySector } from "@/common/enums";
 import { Job } from "@/modules/job/job.entity";
-@Entity({ name: "recruiters", synchronize: true })
+@Entity({ name: "recruiters", synchronize: false })
 export class Recruiter {
   @PrimaryColumn("uuid")
   userId: string;

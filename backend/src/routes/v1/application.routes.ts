@@ -6,7 +6,7 @@ import { requireRole } from "@/middlewares/role.middleware";
 const router = Router()
 
 // Apply to ALL routes below
-router.use(verifyJwt, requireRole("RECRUITER"));
+router.use(verifyJwt, requireRole("CANDIDATE"));
 
 // create application
 router.post("/apply", ApplicationController.apply);
