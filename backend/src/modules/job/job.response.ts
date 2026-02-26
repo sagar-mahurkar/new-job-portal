@@ -9,5 +9,6 @@ export const mapJobToResponse = (job: Job) => ({
   status: job.status,
   vacancies: job.vacancies,
   applicantCount: job.applicantCount,
+  applications: job.applications,
   createdAt: job.createdAt,
 })

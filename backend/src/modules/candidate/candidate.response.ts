@@ -10,5 +10,5 @@ export const mapCandidateToResponse = (candidate: Candidate) => ({
   linkedinUrl: candidate.linkedinUrl,
   githubUrl: candidate.githubUrl,
   portfolioUrl: candidate.portfolioUrl,
-  // jobApplications: candidate.jobApplications
+  jobApplications: candidate.applications
 })

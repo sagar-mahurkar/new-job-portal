@@ -10,6 +10,6 @@ export const createJobSchema = z.object({
   jobSector: z.enum(COMPANY_SECTORS),
   
   vacancies: z.int().positive(),
-});
+}).strict();
 
 export type CreateJobDto = z.infer<typeof createJobSchema>;
