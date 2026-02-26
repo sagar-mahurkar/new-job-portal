@@ -6,6 +6,7 @@ import jobRoutes from "@/routes/v1/job.routes";
 import userRoutes from "@/routes/v1/user.routes";
 import candidateRoutes from "@/routes/v1/candidate.routes";
 import recruiterRoutes from "@/routes/v1/recruiter.routes";
+import applicationRoutes from "@/routes/v1/application.routes";
 import { HttpStatusCodes } from "./common/constants/http.codes";
 import { requestLogger } from "./middlewares/requestLogger.middleware";
 import { JobPortalDataSource } from "./config/database.config";
@@ -63,6 +64,7 @@ app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1/users", userRoutes)
 app.use("/api/v1/candidates", candidateRoutes);
 app.use("/api/v1/recruiters", recruiterRoutes);
+app.use("/api/v1/applications", applicationRoutes);
 
 // 404 Not Found handler
 app.use((req, _res, next) => {
