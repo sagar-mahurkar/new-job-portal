@@ -2,7 +2,7 @@ import { Repository } from "typeorm";
 import { JobPortalDataSource } from "@/config/database.config";
 import { Application } from "./application.entity";
 
-const repo = JobPortalDataSource.getRepository(Application);
+const repo: Repository<Application> = JobPortalDataSource.getRepository(Application);
 
 export const applicationRepository = {
   create: (data: Partial<Application>) => repo.create(data),
