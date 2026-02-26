@@ -1,265 +1,205 @@
-# Phase 4 – Job Application (Candidate side)
+# Job Portal
 
-> Branch: `backend-phase-4-job-application`  
-> Parent branch: `main`  
-> Status: Completed  
+Backend service for a job portal supporting recruiters and candidates, built using clean layered architecture and phased development.
 
 ---
 
-## 🎯 Objective
+## 🚀 Tech Stack
 
-Introduce the Job Application module and establish relational integrity between:
-
-- Candidate
-- Job
-- Application
-
-This phase enables candidates to apply for jobs, ensures duplicate prevention at both service and database levels, and lays the foundation for application lifecycle management.
+- Node.js
+- TypeScript
+- Express
+- PostgreSQL
+- TypeORM
+- Zod
+- JWT
+- Jest (Unit & Integration Testing)
 
 ---
 
-## 📦 Scope
+## 🧱 Architecture Overview
 
-### ✅ Included
+- Layered architecture:
+  Entity → DTO → Repository → Service → Controller → Routes
+- Authentication via JWT (OTP + password)
+- Role-based authorization via middleware
+- Ownership enforcement handled at query level
+- Centralized error handling
+- Strict DTO validation using Zod
+- Response mapping to prevent sensitive data leakage
+- Explicit foreign key modeling for clean querying
+- Composite uniqueness constraints at DB level
+- Atomic DB updates where required (`increment`)
+- Content-Type enforcement for non-GET routes
+- Deterministic integration test database lifecycle
 
-### 1️⃣ Application Entity Design
+---
 
-- `applications` table introduced
-- UUID primary key
-- Explicit FK columns:
-  - `candidateId`
-  - `jobPostingId`
-- Proper `ManyToOne` relations:
-  - Application → Candidate
-  - Application → Job
-- Composite unique constraint:
+## 📦 Implemented Phases
 
-  ```typescript
-  (jobPostingId, candidateId)
-  ```
+- Phase 0 – Foundation
+- Phase 1 – Authentication
+- Phase 2 – Authorization & Middleware
+- Phase 2.1 – Profile Management
+- Phase 3 – Job Posting (Recruiter)
+- Phase 3.1 – Job Management (Update/Delete)
+- Phase 3.2 – Testing & Hardening
+- Phase 4 – Job Application
 
-- Enum-based status
+> Detailed phase documentation is maintained in phase branches and project documentation.
+
+---
+
+## 📌 Current Capabilities
+
+### 👤 User (Shared)
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile (`/me`)
+- Update profile details (name, email, password)
+- Soft delete (deactivate account)
+- Email uniqueness enforced
+- Sensitive fields excluded from API responses
+
+---
+
+### 🧑‍💼 Recruiter
+
+- Create job postings
+- View own job postings
+- Fetch job details with ownership enforcement
+- Update job (partial updates supported)
+- Change job status (OPEN ↔ CLOSED)
+- Delete job (hard delete)
+- Role strictly enforced via middleware
+
+---
+
+### 🎓 Candidate
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile
+- Update candidate-specific profile details
+- Apply to jobs
+- View own applications
+- One application per job enforced (DB + service level)
+- Role-protected routes
+
+---
+
+### 📄 Application Module
+
+- Explicit FK columns (`candidateId`, `jobPostingId`)
+- Composite unique constraint `(jobPostingId, candidateId)`
 - Default status: `APPLIED`
-- Audit timestamps (`createdAt`, `updatedAt`)
+- Atomic applicant count increment
+- Duplicate prevention (409 Conflict)
+- Proper 404 handling for invalid jobs
+- JWT-derived candidate identity
+- No status mutation during creation
 
----
-
-### 2️⃣ Repository Layer
-
-Custom repository abstraction implemented.
-
-Methods:
-
-- `create()`
-- `save()`
-- `findByCandidateAndJob()`
-- `findByCandidate()`
-
-Features:
-
-- Duplicate lookup support
-- FK-based querying
-- Optional relational loading for job metadata
-
----
-
-### 3️⃣ DTO & Response Contracts
-
-#### Request DTO
-
-`create-application.dto.ts`
-
-- Strict Zod validation
-- UUID validation
-- No client-controlled status
-- No client-provided candidateId
-
-#### Response Contract
-
-`application.response.ts`
-
-- Controlled response shape
-- No internal entity leakage
-- Stable API boundary
-
----
-
-### 4️⃣ Service Layer (ApplicationService)
-
-Implemented:
-
-#### applyForJob()
-
-- Job existence validation (404)
-- Duplicate application prevention (409)
-- Application creation
-- Atomic increment of `applicantCount`
-- FK-based persistence
-
-#### getAllApplicationsByCandidate()
-
-- Candidate-scoped retrieval
-- No cross-user data exposure
-- Returns empty array when none exist
-
-Business rules enforced:
-
-- One application per candidate per job
-- Status initialized internally
-- Candidate identity derived from JWT
-
----
-
-### 5️⃣ Controller Layer
-
-Endpoints added:
+Endpoints:
 
 ```code
 POST /api/v1/applications/apply
 GET /api/v1/applications/me
 ```
 
-Features:
+---
 
-- JWT-protected
-- Role-restricted (candidate only)
-- Zod validation
-- Proper HTTP status handling
-- Error propagation to global handler
+## 🔐 Security & Hardening
+
+- JWT verification middleware
+- Role-based access control
+- Ownership enforcement in repository queries
+- Strict DTO validation (reject unknown fields)
+- Content-Type guard (`415 Unsupported Media Type`)
+- Centralized error mapping
+- Sensitive field filtering (password, OTP, timestamps)
+- Silent handling for invalid OTP requests
+- Duplicate application prevention at DB level
 
 ---
 
-### 6️⃣ Route Registration
+## 🧪 Testing
 
-- `application.routes.ts` created
-- Mounted under:
+### ✅ Unit Testing
 
-  ```code
-  /api/v1/applications
-  ```
+- DTO validation
+- Service logic (happy paths + edge cases)
+- Controller behavior
+- JWT middleware
+- Role middleware
 
-Integrated into central route registry.
+### ✅ Integration Testing
 
----
-
-### 7️⃣ Manual API Verification (Postman)
-
-Validated:
-
-#### Apply API
-
-- Successful apply → 201
-- Duplicate apply → 409
-- Invalid job → 404
-- Missing JWT → 401
-- Wrong role → 403
-- Invalid UUID → 400
-- Wrong content-type → 415
-
-#### Get Applications
-
-- Returns correct candidate data
-- No data leakage
-- Correct response structure
-- Handles empty state
-
----
-
-## ❌ Explicitly Excluded
-
-- Recruiter status updates (moved to later phase)
-- Withdraw application endpoint
-- Application deletion
-- Dashboard aggregation
-- Automated test coverage for applications
-- Performance optimization
-
----
-
-## 🧱 Architecture Decisions
-
-- Explicit FK columns for clean querying
-- Composite uniqueness enforced at DB level
-- Service-level duplicate validation
-- Atomic counter updates using `increment()`
-- DTO boundary separates entity from API
-- No status mutation allowed during creation
-- Strict role-based access enforcement
-
----
-
-## 🗂 Files Added / Modified
-
-### New
-
-- `application.entity.ts`
-- `application.repository.ts`
-- `application.service.ts`
-- `application.controller.ts`
-- `application.routes.ts`
-- `create-application.dto.ts`
-- `application.response.ts`
-
-### Modified
-
-- Route registry
-- Job repository (for atomic increment usage)
-- Response contracts alignment
-
----
-
-## 🧪 Testing Performed
-
-Manual testing via Postman.
-
-Validated:
-
-- Duplicate prevention
-- FK integrity
-- Atomic applicant count updates
-- Proper status defaults
-- Correct error codes
+- Auth flows (signup, login, OTP)
+- Profile flows (candidate, recruiter, user)
+- Conflict scenarios
+- Validation failures
 - Role enforcement
-- JWT enforcement
-- Response contract consistency
+- Content-Type enforcement
+- Real database lifecycle per test
+
+Testing stack:
+
+- Jest
+- Supertest
+- Dedicated test DB
+- Controlled schema reset
+- Serial execution to prevent deadlocks
 
 ---
 
-## ⚠️ Known Limitations / Deferred Work
+## 🏗️ Upcoming Work
 
-- No recruiter-side status transitions yet
-- No withdraw endpoint
-- No integration test coverage
-- No dashboard aggregation support
-- No performance tuning for high concurrency
-
-These are deferred to subsequent phases.
-
----
-
-## 🧠 Key Learnings
-
-- Composite unique constraints prevent race-condition duplicates.
-- Atomic DB increment avoids counter inconsistencies.
-- Explicit FK columns simplify repository queries.
-- DTO strictness prevents client-side state injection.
-- Clear phase boundaries prevent scope creep.
-- Application lifecycle should be separated from dashboard aggregation.
+- Recruiter-side application status transitions
+- Phase 5 – Dashboard & Aggregation APIs
+- Application integration coverage
+- Job module integration coverage
+- Public job browsing endpoints
+- Performance optimizations
+- Load testing
+- CI pipeline integration
 
 ---
 
-## ✅ Phase Completion Criteria (Met)
+## ▶️ Running Locally
 
-- Application entity correctly modeled
-- Composite uniqueness enforced
-- Candidate can apply once per job
-- Duplicate prevention works
-- Applicant count increments atomically
-- Applications retrievable per candidate
-- Routes integrated
-- Manual verification completed
-- Phase merged into `main`
+Configure environment variables in:
 
----
+environments/.env.staging
 
-> This document reflects the system state at the end of Phase 4 and remains frozen after merge.
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run development server:
+
+```bash
+npm run dev
+```
+
+Run unit tests:
+
+```bash
+npm run test:unit
+```
+
+Run integration tests:
+
+```bash
+npm run test:integration
+```
+
+## 📌 Project Status
+
+Backend foundation stabilized.
+
+Core modules implemented and hardened.
+
+Application module introduced with relational integrity and duplicate protection.
+
+System ready for workflow expansion and dashboard aggregation phase.
