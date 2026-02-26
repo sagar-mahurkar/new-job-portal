@@ -4,6 +4,7 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from "typeorm";
@@ -16,6 +17,7 @@ import {
   JobStatus 
 } from "@/common/enums"
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
+import { Application } from "../application/application.entity";
 
 @Entity({ name: "jobs", synchronize: true})
 export class Job {
@@ -49,11 +51,15 @@ export class Job {
   @UpdateDateColumn({ type: "timestamptz"})
   updatedAt: Date;
 
+  @Column({ type: "uuid" })
+  recruiterId: string;
+
   // many to one relationship
   @ManyToOne(() => Recruiter, (recruiter) => recruiter.jobPostings, {onDelete: "CASCADE"})
   @JoinColumn({ name: "recruiterId"})
   recruiter: Recruiter;
 
-  @Column({ type: "uuid" })
-  recruiterId: string;
+  // one to many relationship
+  @OneToMany(() => Application, (application) => application.jobPosting)
+  applications: Application[];
 }

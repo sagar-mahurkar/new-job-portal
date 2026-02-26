@@ -2,6 +2,7 @@ import {
   Entity,
   Column, 
   OneToOne, 
+  OneToMany, 
   JoinColumn,
   PrimaryColumn,
   UpdateDateColumn,
@@ -15,7 +16,7 @@ import {
   CompanySector 
 } from "@/common/enums";
 import { User } from "@/modules/user/user.entity";
-
+import { Application } from "../application/application.entity";
 @Entity({ name: "candidates", synchronize: true})
 export class Candidate {
   @PrimaryColumn("uuid")
@@ -55,4 +56,8 @@ export class Candidate {
 
   @UpdateDateColumn({ type: "timestamptz"})
   updatedAt: Date;
+
+  // one to many relationship
+  @OneToMany(() => Application, (application) => application.candidate)
+  applications: Application[];
 }
