@@ -5,7 +5,8 @@ import { HttpStatusCodes } from "@/common/constants/http.codes";
 import { mapRecruiterToResponse } from "./recruiter.response";
 import { updateRecruiterProfileSchema, listJobApplicationsQuerySchema } from "./dtos";
 import { AppError } from "@/common/errors/AppError"
-import { mapApplicationToRecruiterResponse } from "../application/application.response";
+import { mapApplicationToRecruiterResponse } from "@/modules/application/application.response";
+import { updateApplicationStatusSchema, getApplicationSchema } from "@/modules/application/dtos";
 
 export class RecruiterController {
 
@@ -21,7 +22,7 @@ export class RecruiterController {
         "Recruiter profile fetched successfully"
       )
     } catch (err) {
-      next(err)
+      next(err);
     }
   }
 
@@ -62,7 +63,23 @@ export class RecruiterController {
         "Applications fetched successfully"
       )
     } catch (err) {
-      next(err)
+      next(err);
+    }
+  }
+
+  static async updateApplicationStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const params = getApplicationSchema.parse(req.params)
+      const dto = updateApplicationStatusSchema.parse(req.body);
+      const application = await RecruiterController.recruiterService.updateApplicationStatus(req.user.id, params.id, dto);
+    sendSuccessResponse(
+      res,
+      HttpStatusCodes.OK,
+      mapApplicationToRecruiterResponse(application),
+      "Status updated successfully"
+    )
+    } catch (err) {
+      next(err);
     }
   }
 }

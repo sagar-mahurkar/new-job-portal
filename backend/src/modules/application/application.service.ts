@@ -1,4 +1,4 @@
-import { CreateApplicationDto } from "./dtos/create-application.dto";
+import { CreateApplicationDto } from "./dtos";
 import { applicationRepository } from "./application.repository";
 import { jobRepository } from "@/modules/job/job.repository";
 import { AppError } from "@/common/errors/AppError";
@@ -39,6 +39,8 @@ export class ApplicationService {
     // increase applicant count
     await jobRepository.incrementApplicantCount(dto.jobPostingId, 1);
 
+    application.jobPosting = job;
+    
     return application;
   }
 

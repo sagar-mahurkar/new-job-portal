@@ -14,6 +14,9 @@ router.get("/me", RecruiterController.getMe);
 router.patch("/me", RecruiterController.updateMe);
 
 // get all applications
-router.get("/jobs/:id/applications", RecruiterController.getApplicationsByJob)
+router.get("/job/:id/applications", RecruiterController.getApplicationsByJob)
+
+// update application status
+router.patch("/application/:id/status", RecruiterController.updateApplicationStatus)
 
 export default router;

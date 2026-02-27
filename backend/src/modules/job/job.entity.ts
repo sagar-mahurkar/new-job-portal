@@ -36,7 +36,7 @@ export class Job {
   @Column({ type: "enum", enum: COMPANY_SECTORS})
   jobSector: CompanySector;
 
-  @Column({ type: "enum", enum: JOB_STATUSES, default: "OPEN"})
+  @Column({ type: "enum", enum: JOB_STATUSES, default: "OPEN" as JobStatus})
   status: JobStatus;
 
   @Column({ type: "int" })

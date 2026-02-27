@@ -2,8 +2,10 @@ import { AppError } from "@/common/errors/AppError";
 import { UpdateRecruiterProfileDto,ListJobApplicationsQueryDto } from "./dtos";
 import { recruiterRepository } from "./recruiter.repository";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
-import { jobRepository } from "../job/job.repository";
-import { applicationRepository } from "../application/application.repository";
+import { jobRepository } from "@/modules/job/job.repository";
+import { applicationRepository } from "@/modules/application/application.repository";
+import { UpdateApplicationStatusDto } from "@/modules/application/dtos";
+import { isValidTransition } from "@/modules/application/application.lifecycle";
 export class RecruiterService {
   async getMe(userId: string){
     const recruiter = await recruiterRepository.findOne({
@@ -35,7 +37,6 @@ export class RecruiterService {
 
   // soft delete -> user services
 
-
   async getApplicationsByJob(recruiterId: string, dto: ListJobApplicationsQueryDto) {
     const job = await jobRepository.findOneByIdAndRecruiterId(dto.id, recruiterId);
     const page = dto.pageNumber ?? 1;
@@ -55,5 +56,21 @@ export class RecruiterService {
         totalPages: Math.ceil(total / size)
       }
     };
+  }
+
+  async updateApplicationStatus(recruiterId: string, applicationId: string, dto: UpdateApplicationStatusDto) {
+    const application = await applicationRepository.findById(applicationId);
+
+    const job = await jobRepository.findOneByJobId(application.jobPostingId);
+
+    if (job.recruiterId !== recruiterId) {
+      throw new AppError("Application not found", HttpStatusCodes.NOT_FOUND);
+    }
+    if (!isValidTransition(application.status, dto.status)) {
+      throw new AppError("Transition is not possible", HttpStatusCodes.BAD_REQUEST);
+    }
+    application.status = dto.status;
+    await applicationRepository.save(application);
+    return application;
   }
 }

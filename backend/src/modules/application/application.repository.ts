@@ -1,4 +1,4 @@
-import { OptimisticLockVersionMismatchError, Repository } from "typeorm";
+import { Repository } from "typeorm";
 import { JobPortalDataSource } from "@/config/database.config";
 import { Application } from "./application.entity";
 import { In } from "typeorm";
@@ -34,5 +34,11 @@ export const applicationRepository = {
       order: { createdAt: "DESC" }
     });
     return { data, total };
-  }
+  },
+
+  findById: (id: string) => 
+    repo.findOne({
+      where: { id },
+      relations: { jobPosting: true, candidate: true }
+    })
 };

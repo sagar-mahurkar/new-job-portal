@@ -9,7 +9,7 @@ import {
   UpdateDateColumn
 } from "typeorm";
 
-import { JobApplicationStatus } from "@/common/enums"
+import { APPLICATION_STATUSES, ApplicationStatus } from "@/common/enums"
 
 import { Candidate } from "@/modules/candidate/candidate.entity"
 import { Job } from "../job/job.entity";
@@ -20,8 +20,8 @@ export class Application {
   @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({type: "enum", enum: JobApplicationStatus, default: JobApplicationStatus.APPLIED})
-  status: JobApplicationStatus;
+  @Column({type: "enum", enum: APPLICATION_STATUSES, default: "APPLIED" as ApplicationStatus})
+  status: ApplicationStatus;
 
   @CreateDateColumn()
   createdAt: Date;
