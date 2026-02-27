@@ -37,7 +37,7 @@ export class RecruiterService {
 
 
   async getApplicationsByJob(recruiterId: string, dto: ListJobApplicationsQueryDto) {
-    const job = await jobRepository.findOneByIdAndRecruiterId(dto.jobId, recruiterId);
+    const job = await jobRepository.findOneByIdAndRecruiterId(dto.id, recruiterId);
     const page = dto.pageNumber ?? 1;
     const size = dto.pageSize ?? 10;
     if (!job) {
