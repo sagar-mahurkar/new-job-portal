@@ -1,4 +1,4 @@
-# Phase 4.1 – Application Management (Recruiter side)
+# Phase 4.1 – Application Management (Recruiter Side)
 
 > Branch: `backend-phase-4.1-application-management`  
 > Parent branch: `main`  
@@ -8,14 +8,15 @@
 
 ## 🎯 Objective
 
-Extend the Job Application module to support recruiter-side lifecycle management.
+Extend the Job Application module to support recruiter-side lifecycle management with strict domain separation and paginated querying.
 
 This phase enables recruiters to:
 
-- View applications for their job postings  
+- View applications for their own job postings  
 - Update application status  
 - Enforce controlled lifecycle transitions  
 - Maintain strict ownership validation  
+- Support paginated responses with metadata  
 
 ---
 
@@ -36,11 +37,27 @@ GET /api/v1/recruiter/jobs/:jobId/applications
 Features:
 
 - Recruiter-only access  
-- Ownership validation (job must belong to recruiter)  
-- Pagination support  
-- Optional status filtering  
-- Candidate profile included (safe projection)  
-- 404 for non-owned jobs  
+- Ownership validation (job must belong to authenticated recruiter)  
+- Pagination using `findAndCount()`  
+- Safe default pagination (page ≥ 1, capped pageSize)  
+- Optional status filtering (if provided)  
+- Candidate profile included (sanitized projection)  
+- 404 for non-owned jobs (prevents cross-tenant leakage)  
+- Stable meta response structure  
+
+Pagination Response Shape:
+
+```code
+{
+  data: [...],
+  meta: {
+    total,
+    page,
+    limit,
+    totalPages
+  }
+}
+```
 
 ---
 
@@ -55,18 +72,32 @@ PATCH /api/v1/recruiter/applications/:id/status
 Features:
 
 - Recruiter-only access  
-- Ownership validation  
-- Strict enum validation (Zod)  
-- Controlled status transitions  
-- Idempotent updates  
-- `statusUpdatedAt` auto-updated  
+- Ownership validation (application’s job must belong to recruiter)  
+- Strict enum validation (Zod v4)  
+- Controlled lifecycle transitions  
+- Idempotent-safe updates  
+- `updatedAt` auto-managed via `@UpdateDateColumn`  
 - 404 for cross-job access  
 
 ---
 
-### 3️⃣ Application Lifecycle Rules
+### 3️⃣ Application Lifecycle Rules (Domain Guard)
 
-Status transitions allowed:
+Lifecycle logic moved to application domain.
+
+File:
+
+```code
+application.lifecycle.ts
+```
+
+Transition matrix implemented using:
+
+```code
+Record<ApplicationStatus, Set<ApplicationStatus>>
+```
+
+Allowed transitions:
 
 ```code
 APPLIED → SHORTLISTED  
@@ -76,110 +107,125 @@ SHORTLISTED → REJECTED
 
 Not allowed:
 
-- Any backward transitions  
+- Backward transitions  
 - REJECTED → any state  
 - SHORTLISTED → APPLIED  
 
-Transition logic centralized in:
+Validation function:
 
 ```typescript
 isValidTransition(from, to)
 ```
 
-No transition logic in controller.
+Rules:
+
+- If `from === to` → return true (idempotent safe)
+- Otherwise check transition matrix
+- Pure function
+- No DB access
+- No service imports
+
+Lifecycle rules remain inside **application module**, not recruiter module.
 
 ---
 
-### 4️⃣ Entity Updates
+### 4️⃣ Entity & Enum Alignment
 
-Added:
+Application entity:
 
-```typescript
-statusUpdatedAt: Date
+- Enum column using union type
+- Composite unique constraint `(jobPostingId, candidateId)`
+- Explicit FK columns
+- Audit timestamps
+
+Important learning:
+
+Postgres enums require migration when values change.  
+Dropping table alone does not always remove enum type.
+
+Correct fix:
+
+```code
+ALTER TYPE applications_status_enum ADD VALUE 'SHORTLISTED';
 ```
 
-Maintained:
-
-- Composite unique constraint `(jobPostingId, candidateId)`  
-- Explicit FK columns  
-- Enum-based status  
-- Audit timestamps  
+or drop enum explicitly during development.
 
 ---
 
 ### 5️⃣ Repository Layer
 
-New/Extended Methods:
+#### Job Repository
 
-- `findByJobPosting(jobPostingId, filters)`  
-- `findById(applicationId)`  
+- `findIdsByRecruiterId(recruiterId)`
+- Returns only job IDs using `select: { id: true }`
 
-Features:
+#### Application Repository
 
-- Explicit FK querying  
-- Controlled relational loading (`candidate`)  
-- Pagination support  
+- `findByJobPosting(jobPostingId, page, limit)`
+- Uses `findAndCount()`
+- Supports pagination
+- Loads required relations (`candidate`)
+- Ordered by `createdAt DESC`
+
+Repository methods reflect data access intent, not business intent.
 
 ---
 
 ### 6️⃣ Service Layer
 
-Implemented:
-
 #### listApplicationsByJob()
 
-- Job ownership validation  
-- Status filtering  
-- Pagination logic  
-- Safe candidate mapping  
+- Validate job exists
+- Validate recruiter ownership
+- Apply pagination defaults
+- Fetch via repository
+- Return `{ data, meta }`
 
 #### updateApplicationStatus()
 
-- Application lookup  
-- Ownership validation  
-- Transition guard enforcement  
-- Status update  
-- `statusUpdatedAt` update  
+- Fetch application
+- Validate recruiter ownership
+- Call `isValidTransition()`
+- Update status
+- Persist via repository
 
-Business rules enforced:
-
-- No cross-recruiter manipulation  
-- No invalid transitions  
-- No business logic in controller  
+Service orchestrates only.  
+No lifecycle logic inside recruiter service.
 
 ---
 
-### 7️⃣ Response Contracts
+### 7️⃣ Response Mapping
 
-- Controlled recruiter-safe candidate projection  
-- No password leakage  
-- No internal entity exposure  
-- Stable response structure  
+Separate role-based mappers:
+
+- `mapApplicationToCandidateResponse`
+- `mapApplicationToRecruiterResponse`
+
+Important rule:
+
+Service must hydrate required relations before mapping.
+
+Bug fixed:
+`repo.save()` does not auto-load relations.  
+Relations must be attached or re-queried before returning.
 
 ---
 
-### 8️⃣ Manual API Verification (Postman)
+### 8️⃣ DTO Validation (Zod v4)
 
-Validated:
+Query DTO:
 
-#### List Applications
+- `jobId: z.uuid()`
+- `pageSize: z.coerce.number().int().min(1).max(50).optional()`
+- `pageNumber: z.coerce.number().int().min(1).optional()`
 
-- Success → 200  
-- Non-owned job → 404  
-- Invalid UUID → 400  
-- Missing JWT → 401  
-- Wrong role → 403  
-- Status filter works  
-- Pagination works  
+Key points:
 
-#### Update Status
-
-- Valid transition → 200  
-- Invalid transition → 400  
-- Non-owned application → 404  
-- Invalid enum → 400  
-- Missing JWT → 401  
-- Wrong role → 403  
+- Query params are strings → use `coerce`
+- Page cannot be 0
+- Page size capped to prevent abuse
+- `.strict()` applied
 
 ---
 
@@ -190,18 +236,19 @@ Validated:
 - Recruiter dashboard aggregation  
 - Notification system  
 - Optimistic locking  
-- Automated test coverage expansion beyond scope  
+- Automated test coverage expansion  
 
 ---
 
 ## 🧱 Architecture Decisions
 
-- Lifecycle rules centralized in domain guard  
-- Ownership validation strictly in service layer  
-- 404 returned for unauthorized access (no data leakage)  
+- Lifecycle rules centralized in application domain  
+- Recruiter module handles authorization, not domain rules  
+- 404 returned for unauthorized ownership access  
 - Explicit FK querying preserved  
-- Composite uniqueness untouched  
+- Pagination implemented at repository level  
 - No controller-level business logic  
+- No service-to-service imports  
 - Clean entity → DTO → repository → service → controller layering maintained  
 
 ---
@@ -210,66 +257,61 @@ Validated:
 
 ### New
 
-- `update-application-status.dto.ts`  
-- Transition guard utility  
+- `application.lifecycle.ts`
+- `update-application-status.dto.ts`
 
 ### Modified
 
-- `application.entity.ts`  
-- `application.repository.ts`  
-- `application.service.ts`  
-- `application.controller.ts`  
-- `application.routes.ts`  
-- Response mappers  
+- `application.repository.ts`
+- `application.service.ts`
+- `application.controller.ts`
+- `job.repository.ts`
+- `recruiter.service.ts`
+- `recruiter.controller.ts`
+- Response mappers
 
 ---
 
 ## 🧪 Testing Performed
 
-Manual testing via Postman.
+Manual verification via Postman.
 
 Validated:
 
-- Ownership enforcement  
-- Transition validation  
+- Recruiter ownership enforcement  
+- Transition matrix validation  
 - Enum strictness  
-- Data leakage prevention  
-- Correct HTTP codes  
-- Candidate relation loading  
-- Pagination & filtering behavior  
-
----
-
-## ⚠️ Known Limitations / Deferred Work
-
-- No withdraw application endpoint  
-- No dashboard analytics  
-- No optimistic locking  
-- No event-driven notifications  
-- No high-concurrency stress testing  
-
-Deferred to future phases.
+- Pagination meta correctness  
+- Relation hydration  
+- 404 for cross-tenant access  
+- Proper HTTP codes  
+- Malformed UUID → 400  
+- JWT + role enforcement  
 
 ---
 
 ## 🧠 Key Learnings
 
-- Centralized transition guards simplify lifecycle control.  
-- Ownership validation must precede all mutations.  
-- Returning 404 prevents cross-tenant information leakage.  
-- Strict enum validation prevents state corruption.  
-- Clean layering prevents controller logic creep.  
+- Domain rules must not live in orchestration services  
+- Transition matrix is cleaner than conditional chains  
+- `findAndCount()` required for proper pagination  
+- Postgres enum changes require migration  
+- `repo.save()` does not hydrate relations  
+- Returning 404 prevents information leakage  
+- Repository methods must reflect data access, not business intent  
+- Union types provide enum safety without TypeScript enums  
 
 ---
 
 ## ✅ Phase Completion Criteria
 
-- Recruiter can list applications for own jobs  
+- Recruiter can list applications for owned jobs  
+- Pagination implemented with meta  
 - Recruiter can update application status  
-- Transition rules enforced  
+- Transition guard enforced  
 - Ownership strictly validated  
-- No sensitive data leakage  
-- Routes integrated  
+- No data leakage  
+- Clean layering preserved  
 - Manual verification completed  
 - Phase merged into `main`  
 
