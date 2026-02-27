@@ -1,49 +1,144 @@
-# Phase 4.1 – Application Management (Recruiter Side)
+# Job Portal
 
-> Branch: `backend-phase-4.1-application-management`  
-> Parent branch: `main`  
-> Status: Completed  
+Backend service for a job portal supporting recruiters and candidates, built using clean layered architecture and phased development.
 
 ---
 
-## 🎯 Objective
+## 🚀 Tech Stack
 
-Extend the Job Application module to support recruiter-side lifecycle management with strict domain separation and paginated querying.
-
-This phase enables recruiters to:
-
-- View applications for their own job postings  
-- Update application status  
-- Enforce controlled lifecycle transitions  
-- Maintain strict ownership validation  
-- Support paginated responses with metadata  
-
----
-
-## 📦 Scope
-
-### ✅ Included
+- Node.js
+- TypeScript
+- Express
+- PostgreSQL
+- TypeORM
+- Zod (v4)
+- JWT
+- Jest (Unit & Integration Testing)
 
 ---
 
-### 1️⃣ Recruiter – List Applications
+## 🧱 Architecture Overview
 
-Endpoint:
+- Layered architecture:
+  Entity → DTO → Repository → Service → Controller → Routes
+- Authentication via JWT (OTP + password)
+- Role-based authorization via middleware
+- Ownership enforcement handled at service + repository level
+- Centralized error handling
+- Strict DTO validation using Zod
+- Response mapping to prevent sensitive data leakage
+- Explicit foreign key modeling for clean querying
+- Composite uniqueness constraints at DB level
+- Atomic DB updates where required (`increment`)
+- Controlled lifecycle transitions using domain guards
+- Pagination with deterministic metadata
+- Content-Type enforcement for non-GET routes
+- Deterministic integration test database lifecycle
+
+---
+
+## 📦 Implemented Phases
+
+- Phase 0 – Foundation
+- Phase 1 – Authentication
+- Phase 2 – Authorization & Middleware
+- Phase 2.1 – Profile Management
+- Phase 3 – Job Posting (Recruiter)
+- Phase 3.1 – Job Management (Update/Delete)
+- Phase 3.2 – Testing & Hardening
+- Phase 4 – Job Application (Candidate)
+- Phase 4.1 – Application Management (Recruiter)
+
+> Detailed phase documentation is maintained in phase branches and project documentation.
+
+---
+
+## 📌 Current Capabilities
+
+### 👤 User (Shared)
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile (`/me`)
+- Update profile details (name, email, password)
+- Soft delete (deactivate account)
+- Email uniqueness enforced
+- Sensitive fields excluded from API responses
+
+---
+
+### 🧑‍💼 Recruiter
+
+- Create job postings
+- View own job postings
+- Fetch job details with ownership enforcement
+- Update job (partial updates supported)
+- Change job status (OPEN ↔ CLOSED)
+- Delete job (hard delete)
+- View applications for owned jobs (paginated)
+- Update application status with lifecycle enforcement
+- Role strictly enforced via middleware
+
+Recruiter Application Endpoints:
 
 ```code
-GET /api/v1/recruiter/jobs/:jobId/applications
+GET    /api/v1/recruiter/jobs/:jobId/applications
+PATCH  /api/v1/recruiter/applications/:id/status
 ```
 
 Features:
 
-- Recruiter-only access  
-- Ownership validation (job must belong to authenticated recruiter)  
-- Pagination using `findAndCount()`  
-- Safe default pagination (page ≥ 1, capped pageSize)  
-- Optional status filtering (if provided)  
-- Candidate profile included (sanitized projection)  
-- 404 for non-owned jobs (prevents cross-tenant leakage)  
-- Stable meta response structure  
+- Ownership validation (404 on cross-tenant access)
+- Paginated response with meta
+- Strict status transition control
+- No data leakage across recruiters
+
+---
+
+### 🎓 Candidate
+
+- Sign up & authenticate via OTP or password
+- Fetch own profile
+- Update candidate-specific profile details
+- Apply to jobs
+- View own applications
+- One application per job enforced (DB + service level)
+- Role-protected routes
+
+---
+
+### 📄 Application Module
+
+#### Core Features
+
+- Explicit FK columns (`candidateId`, `jobPostingId`)
+- Composite unique constraint `(jobPostingId, candidateId)`
+- Default status: `APPLIED`
+- Supported statuses:
+  - APPLIED
+  - SHORTLISTED
+  - REJECTED
+- Controlled lifecycle transitions via transition matrix
+- Atomic applicant count increment
+- Duplicate prevention (409 Conflict)
+- Proper 404 handling for invalid jobs
+- JWT-derived identity (candidate & recruiter)
+- No status mutation during creation
+- Paginated recruiter-side listing
+- Domain-level transition guard (`isValidTransition`)
+
+Candidate Endpoints:
+
+```code
+POST /api/v1/applications/apply
+GET  /api/v1/applications/me
+```
+
+Recruiter Endpoints:
+
+```code
+GET    /api/v1/recruiter/jobs/:jobId/applications
+PATCH  /api/v1/recruiter/applications/:id/status
+```
 
 Pagination Response Shape:
 
@@ -61,260 +156,114 @@ Pagination Response Shape:
 
 ---
 
-### 2️⃣ Recruiter – Update Application Status
+## 🔐 Security & Hardening
 
-Endpoint:
+- JWT verification middleware
+- Role-based access control
+- Ownership enforcement before mutations
+- 404 returned for unauthorized resource ownership
+- Strict DTO validation (reject unknown fields)
+- Content-Type guard (`415 Unsupported Media Type`)
+- Centralized error mapping
+- Sensitive field filtering (password, OTP)
+- Silent handling for invalid OTP requests
+- Duplicate application prevention at DB level
+- Controlled enum validation via Zod
+- Lifecycle transitions validated at domain layer
 
-```code
-PATCH /api/v1/recruiter/applications/:id/status
+---
+
+## 🧪 Testing
+
+### ✅ Unit Testing
+
+- DTO validation
+- Service logic (happy paths + edge cases)
+- Lifecycle transition guard
+- Controller behavior
+- JWT middleware
+- Role middleware
+
+### ✅ Integration Testing
+
+- Auth flows (signup, login, OTP)
+- Profile flows (candidate, recruiter, user)
+- Application apply flow
+- Recruiter application listing
+- Conflict scenarios
+- Validation failures
+- Role enforcement
+- Content-Type enforcement
+- Real database lifecycle per test
+
+Testing stack:
+
+- Jest
+- Supertest
+- Dedicated test DB
+- Controlled schema reset
+- Serial execution to prevent deadlocks
+
+---
+
+## 🏗️ Upcoming Work
+
+- Phase 5 – Dashboard & Aggregation APIs
+- Application integration coverage expansion
+- Job module integration coverage expansion
+- Public job browsing endpoints
+- Performance optimizations
+- Load testing
+- CI pipeline integration
+
+---
+
+## ▶️ Running Locally
+
+Configure environment variables in:
+
+```bash
+environments/.env.staging
 ```
 
-Features:
+Install dependencies:
 
-- Recruiter-only access  
-- Ownership validation (application’s job must belong to recruiter)  
-- Strict enum validation (Zod v4)  
-- Controlled lifecycle transitions  
-- Idempotent-safe updates  
-- `updatedAt` auto-managed via `@UpdateDateColumn`  
-- 404 for cross-job access  
-
----
-
-### 3️⃣ Application Lifecycle Rules (Domain Guard)
-
-Lifecycle logic moved to application domain.
-
-File:
-
-```code
-application.lifecycle.ts
+```bash
+npm install
 ```
 
-Transition matrix implemented using:
+Run development server:
 
-```code
-Record<ApplicationStatus, Set<ApplicationStatus>>
+```bash
+npm run dev
 ```
 
-Allowed transitions:
+Run unit tests:
 
-```code
-APPLIED → SHORTLISTED  
-APPLIED → REJECTED  
-SHORTLISTED → REJECTED
+```bash
+npm run test:unit
 ```
 
-Not allowed:
+Run integration tests:
 
-- Backward transitions  
-- REJECTED → any state  
-- SHORTLISTED → APPLIED  
-
-Validation function:
-
-```typescript
-isValidTransition(from, to)
+```bash
+npm run test:integration
 ```
 
-Rules:
-
-- If `from === to` → return true (idempotent safe)
-- Otherwise check transition matrix
-- Pure function
-- No DB access
-- No service imports
-
-Lifecycle rules remain inside **application module**, not recruiter module.
-
 ---
 
-### 4️⃣ Entity & Enum Alignment
+## 📌 Project Status
 
-Application entity:
+Backend foundation stabilized.
 
-- Enum column using union type
-- Composite unique constraint `(jobPostingId, candidateId)`
-- Explicit FK columns
-- Audit timestamps
+Core modules implemented and hardened.
 
-Important learning:
+Application module supports:
 
-Postgres enums require migration when values change.  
-Dropping table alone does not always remove enum type.
+- Relational integrity
+- Duplicate protection
+- Recruiter lifecycle management
+- Paginated recruiter-side listing
+- Controlled status transitions
 
-Correct fix:
-
-```code
-ALTER TYPE applications_status_enum ADD VALUE 'SHORTLISTED';
-```
-
-or drop enum explicitly during development.
-
----
-
-### 5️⃣ Repository Layer
-
-#### Job Repository
-
-- `findIdsByRecruiterId(recruiterId)`
-- Returns only job IDs using `select: { id: true }`
-
-#### Application Repository
-
-- `findByJobPosting(jobPostingId, page, limit)`
-- Uses `findAndCount()`
-- Supports pagination
-- Loads required relations (`candidate`)
-- Ordered by `createdAt DESC`
-
-Repository methods reflect data access intent, not business intent.
-
----
-
-### 6️⃣ Service Layer
-
-#### listApplicationsByJob()
-
-- Validate job exists
-- Validate recruiter ownership
-- Apply pagination defaults
-- Fetch via repository
-- Return `{ data, meta }`
-
-#### updateApplicationStatus()
-
-- Fetch application
-- Validate recruiter ownership
-- Call `isValidTransition()`
-- Update status
-- Persist via repository
-
-Service orchestrates only.  
-No lifecycle logic inside recruiter service.
-
----
-
-### 7️⃣ Response Mapping
-
-Separate role-based mappers:
-
-- `mapApplicationToCandidateResponse`
-- `mapApplicationToRecruiterResponse`
-
-Important rule:
-
-Service must hydrate required relations before mapping.
-
-Bug fixed:
-`repo.save()` does not auto-load relations.  
-Relations must be attached or re-queried before returning.
-
----
-
-### 8️⃣ DTO Validation (Zod v4)
-
-Query DTO:
-
-- `jobId: z.uuid()`
-- `pageSize: z.coerce.number().int().min(1).max(50).optional()`
-- `pageNumber: z.coerce.number().int().min(1).optional()`
-
-Key points:
-
-- Query params are strings → use `coerce`
-- Page cannot be 0
-- Page size capped to prevent abuse
-- `.strict()` applied
-
----
-
-## ❌ Explicitly Excluded
-
-- Candidate withdraw endpoint  
-- Application deletion  
-- Recruiter dashboard aggregation  
-- Notification system  
-- Optimistic locking  
-- Automated test coverage expansion  
-
----
-
-## 🧱 Architecture Decisions
-
-- Lifecycle rules centralized in application domain  
-- Recruiter module handles authorization, not domain rules  
-- 404 returned for unauthorized ownership access  
-- Explicit FK querying preserved  
-- Pagination implemented at repository level  
-- No controller-level business logic  
-- No service-to-service imports  
-- Clean entity → DTO → repository → service → controller layering maintained  
-
----
-
-## 🗂 Files Added / Modified
-
-### New
-
-- `application.lifecycle.ts`
-- `update-application-status.dto.ts`
-
-### Modified
-
-- `application.repository.ts`
-- `application.service.ts`
-- `application.controller.ts`
-- `job.repository.ts`
-- `recruiter.service.ts`
-- `recruiter.controller.ts`
-- Response mappers
-
----
-
-## 🧪 Testing Performed
-
-Manual verification via Postman.
-
-Validated:
-
-- Recruiter ownership enforcement  
-- Transition matrix validation  
-- Enum strictness  
-- Pagination meta correctness  
-- Relation hydration  
-- 404 for cross-tenant access  
-- Proper HTTP codes  
-- Malformed UUID → 400  
-- JWT + role enforcement  
-
----
-
-## 🧠 Key Learnings
-
-- Domain rules must not live in orchestration services  
-- Transition matrix is cleaner than conditional chains  
-- `findAndCount()` required for proper pagination  
-- Postgres enum changes require migration  
-- `repo.save()` does not hydrate relations  
-- Returning 404 prevents information leakage  
-- Repository methods must reflect data access, not business intent  
-- Union types provide enum safety without TypeScript enums  
-
----
-
-## ✅ Phase Completion Criteria
-
-- Recruiter can list applications for owned jobs  
-- Pagination implemented with meta  
-- Recruiter can update application status  
-- Transition guard enforced  
-- Ownership strictly validated  
-- No data leakage  
-- Clean layering preserved  
-- Manual verification completed  
-- Phase merged into `main`  
-
----
-
-> This document reflects the system state at the end of Phase 4.1 and remains frozen after merge.
+System ready for dashboard aggregation phase and public browsing expansion.
