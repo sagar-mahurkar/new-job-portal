@@ -1,4 +1,4 @@
-import { updateRecruiterProfileSchema } from "@/modules/recruiter/recruiter.dto";
+import { updateRecruiterProfileSchema } from "@/modules/recruiter/dtos/recruiter.dto";
 
 describe("updateRecruiterProfileSchema", () => {
   // extra field provided

@@ -3,8 +3,10 @@ import { RecruiterService } from "./recruiter.service";
 import { sendSuccessResponse } from "@/common/utils/response.util";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
 import { mapRecruiterToResponse } from "./recruiter.response";
-import { updateRecruiterProfileSchema } from "./recruiter.dto";
+import { updateRecruiterProfileSchema, listJobApplicationsQuerySchema } from "./dtos";
 import { AppError } from "@/common/errors/AppError"
+import { mapApplicationToRecruiterResponse } from "../application/application.response";
+
 export class RecruiterController {
 
   private static recruiterService = new RecruiterService();
@@ -45,4 +47,22 @@ export class RecruiterController {
   }
 
   // soft delete -> user controllers
+
+  static async getApplicationsByJob(req: Request, res: Response, next: NextFunction) {
+    try {
+      const dto = listJobApplicationsQuerySchema.parse({...req.params, ...req.query})
+      const result = await RecruiterController.recruiterService.getApplicationsByJob(req.user.id, dto)
+      sendSuccessResponse(
+        res,
+        HttpStatusCodes.OK,
+        {
+          data: result.data.map(mapApplicationToRecruiterResponse),
+          meta: result.meta
+        },
+        "Applications fetched successfully"
+      )
+    } catch (err) {
+      next(err)
+    }
+  }
 }

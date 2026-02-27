@@ -9,7 +9,7 @@ const router = Router()
 router.use(verifyJwt, requireRole("CANDIDATE"));
 
 // create application
-router.post("/apply", ApplicationController.apply);
+router.post("/apply", ApplicationController.applyForJob);
 
 // get all applications
 router.get("/me", ApplicationController.getAllApplicationsByCandidate);

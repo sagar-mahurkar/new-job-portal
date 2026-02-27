@@ -6,11 +6,9 @@ import { HttpStatusCodes } from "@/common/constants/http.codes";
 
 export class ApplicationService {
   // apply for a job
-  async apply(candidateId: string, dto: CreateApplicationDto){
+  async applyForJob(candidateId: string, dto: CreateApplicationDto){
     // find job
-    const job = await jobRepository.findOne({
-      where: { id: dto.jobPostingId }
-    })
+    const job = await jobRepository.findOneByJobId(dto.jobPostingId);
 
     if (!job) {
       throw new AppError("Job not found", HttpStatusCodes.NOT_FOUND);
@@ -39,11 +37,7 @@ export class ApplicationService {
     await applicationRepository.save(application);
 
     // increase applicant count
-    await jobRepository.increment(
-      { id: dto.jobPostingId },
-      "applicantCount",
-      1
-    );
+    await jobRepository.incrementApplicantCount(dto.jobPostingId, 1);
 
     return application;
   }

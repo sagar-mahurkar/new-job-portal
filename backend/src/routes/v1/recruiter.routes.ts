@@ -5,10 +5,15 @@ import { requireRole } from "@/middlewares/role.middleware";
 
 const router = Router();
 
+router.use(verifyJwt, requireRole("RECRUITER"));
+
 // get profile
-router.get("/me", verifyJwt, requireRole("RECRUITER"), RecruiterController.getMe);
+router.get("/me", RecruiterController.getMe);
 
 // update profile
-router.patch("/me", verifyJwt, requireRole("RECRUITER"), RecruiterController.updateMe);
+router.patch("/me", RecruiterController.updateMe);
+
+// get all applications
+router.get("/jobs/:jobId/applications", RecruiterController.getApplicationsByJob)
 
 export default router;

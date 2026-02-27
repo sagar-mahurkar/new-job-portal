@@ -3,19 +3,19 @@ import { ApplicationService } from "./application.service";
 import { createApplicationSchema } from "./dtos/create-application.dto";
 import { sendSuccessResponse } from "@/common/utils/response.util";
 import { HttpStatusCodes } from "@/common/constants/http.codes";
-import { mapApplicationToResponse } from "./application.response";
+import { mapApplicationToCandidateResponse, mapApplicationToRecruiterResponse } from "./application.response";
 
 export class ApplicationController {
   private static applicationService = new ApplicationService();
 
-  static async apply(req: Request, res: Response, next: NextFunction) {
+  static async applyForJob(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = createApplicationSchema.parse(req.body);
-      const application = await ApplicationController.applicationService.apply(req.user.id, dto);
+      const application = await ApplicationController.applicationService.applyForJob(req.user.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
-        mapApplicationToResponse(application),
+        mapApplicationToCandidateResponse(application),
         "Application created successfully"
       )
     } catch (err) {
@@ -29,7 +29,7 @@ export class ApplicationController {
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
-        applications.map(mapApplicationToResponse),
+        applications.map(mapApplicationToCandidateResponse),
         "Applications fetched successfully"
       )
     } catch (err) {
