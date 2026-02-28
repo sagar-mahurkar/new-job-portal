@@ -14,7 +14,7 @@ import { APPLICATION_STATUSES, ApplicationStatus } from "@/common/enums"
 import { Candidate } from "@/modules/candidate/candidate.entity"
 import { Job } from "../job/job.entity";
 
-@Entity({name: "applications", synchronize: false})
+@Entity({name: "applications", synchronize: true})
 @Index(["jobPostingId", "candidateId"], { unique: true })
 export class Application {
   @PrimaryGeneratedColumn("uuid")
