@@ -7,7 +7,7 @@ describe("User Profile - Integration", () => {
     // 401 → no token
     it("should return 401 for profile without valid token", async () => {
       const response = await request(app)
-        .get("/api/v1/users/me")
+        .get("/api/v1/user/me")
         .set("Authorization", `Bearer `)
 
       expect(response.status).toBe(401);
@@ -29,7 +29,7 @@ describe("User Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .get("/api/v1/users/me")
+        .get("/api/v1/user/me")
         .set("Authorization", `Bearer ${token}`)
 
       expect(response.status).toBe(200);
@@ -58,7 +58,7 @@ describe("User Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/users/me")
+        .patch("/api/v1/user/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate)
 
@@ -95,7 +95,7 @@ describe("User Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/users/me")
+        .patch("/api/v1/user/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate)
 
@@ -122,7 +122,7 @@ describe("User Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/users/me")
+        .patch("/api/v1/user/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate)
 
@@ -149,7 +149,7 @@ describe("User Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .delete("/api/v1/users/me")
+        .delete("/api/v1/user/me")
         .set("Authorization", `Bearer ${token}`)
       
       expect(response.status).toBe(200);

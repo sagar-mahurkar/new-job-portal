@@ -6,7 +6,7 @@ describe("Recruiter Profile - Integration", () => {
     // 401 → No token
     it("should return 401 for profile without valid token", async () => {
       const response = await request(app)
-        .get("/api/v1/recruiters/me")
+        .get("/api/v1/recruiter/me")
         .set("Authorization", `Bearer `);
 
       expect(response.status).toBe(401);
@@ -28,7 +28,7 @@ describe("Recruiter Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .get("/api/v1/recruiters/me")
+        .get("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(403);
@@ -50,7 +50,7 @@ describe("Recruiter Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .get("/api/v1/recruiters/me")
+        .get("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -80,7 +80,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer `)
         .send(profileUpdate);
 
@@ -109,7 +109,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -138,7 +138,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -166,7 +166,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`)
         .send(partialProfileUpdate);
 
@@ -196,7 +196,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -225,7 +225,7 @@ describe("Recruiter Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/recruiters/me")
+        .patch("/api/v1/recruiter/me")
         .set("Authorization", `Bearer ${token}`)
         .set("Content-Type", "text/plain")
         .send("invalid-body");

@@ -6,7 +6,7 @@ describe("Candidate Profile - Integration", () => {
     // 401 → No token
     it("should return 401 for profile without valid token", async () => {
       const response = await request(app)
-        .get("/api/v1/candidates/me")
+        .get("/api/v1/candidate/me")
         .set("Authorization", `Bearer `);
 
       expect(response.status).toBe(401);
@@ -28,7 +28,7 @@ describe("Candidate Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .get("/api/v1/candidates/me")
+        .get("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(403);
@@ -50,7 +50,7 @@ describe("Candidate Profile - Integration", () => {
       const token = signup.body.data.accessToken;
 
       const response = await request(app)
-        .get("/api/v1/candidates/me")
+        .get("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`);
 
       expect(response.status).toBe(200);
@@ -85,7 +85,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer `)
         .send(profileUpdate);
 
@@ -119,7 +119,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -153,7 +153,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -184,7 +184,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`)
         .send(partialProfileUpdate);
 
@@ -219,7 +219,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`)
         .send(profileUpdate);
 
@@ -253,7 +253,7 @@ describe("Candidate Profile - Integration", () => {
       }
 
       const response = await request(app)
-        .patch("/api/v1/candidates/me")
+        .patch("/api/v1/candidate/me")
         .set("Authorization", `Bearer ${token}`)
         .set("Content-Type", "text/plain")
         .send("invalid-body");
