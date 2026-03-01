@@ -2,6 +2,7 @@ import { Router } from "express";
 import { RecruiterController } from "@/modules/recruiter/recruiter.controller";
 import { verifyJwt } from "@/middlewares/auth.middleware";
 import { requireRole } from "@/middlewares/role.middleware";
+import { recruiterDashboardRouter } from "@/modules/recruiter-dashboard/recruiter-dashboard.routes";
 
 const router = Router();
 
@@ -18,5 +19,7 @@ router.get("/job/:id/applications", RecruiterController.getApplicationsByJob)
 
 // update application status
 router.patch("/application/:id/status", RecruiterController.updateApplicationStatus)
+
+router.use("/dashboard", recruiterDashboardRouter);
 
 export default router;
