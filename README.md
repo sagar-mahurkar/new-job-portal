@@ -59,6 +59,88 @@ Backend service for a job portal supporting recruiters, candidates, and public j
 
 ---
 
+## List of all routes
+
+## 📡 API Routes
+
+---
+
+### 🔐 Auth Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| POST | /api/v1/auth/signup/recruiter |
+| POST | /api/v1/auth/signup/candidate |
+| POST | /api/v1/auth/login/password |
+| POST | /api/v1/auth/login/otp/request |
+| POST | /api/v1/auth/login/otp/resend |
+| POST | /api/v1/auth/login/otp/verify |
+
+---
+
+### 🎓 Candidate Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| GET | /api/v1/candidate/me |
+| PATCH | /api/v1/candidate/me |
+| GET | /api/v1/candidate/dashboard |
+| GET | /api/v1/candidate/dashboard/applications |
+
+---
+
+### 🧑‍💼 Recruiter Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| GET | /api/v1/recruiter/me |
+| PATCH | /api/v1/recruiter/me |
+| GET | /api/v1/recruiter/jobs/:id/applications |
+| PATCH | /api/v1/recruiter/applications/:id/status |
+| GET | /api/v1/recruiter/dashboard |
+| GET | /api/v1/recruiter/dashboard/overview |
+
+---
+
+### 👤 User Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| GET | /api/v1/user/me |
+| PATCH | /api/v1/user/me |
+| DELETE | /api/v1/user/me |
+
+---
+
+### 💼 Job Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| POST | /api/v1/jobs |
+| GET | /api/v1/jobs/me |
+| GET | /api/v1/jobs/:id |
+| PATCH | /api/v1/jobs/:id |
+| DELETE | /api/v1/jobs/:id |
+
+---
+
+### 📄 Application Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| POST | /api/v1/applications/apply |
+| GET | /api/v1/applications/me |
+
+---
+
+### 🌍 Public Routes
+
+| Method | Endpoint |
+| -------- | ---------- |
+| GET | /api/v1/jobs |
+| GET | /api/v1/jobs/filters |
+| GET | /api/v1/jobs/:id |
+
 ## 📌 Current Capabilities
 
 ---
