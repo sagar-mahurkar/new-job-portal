@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CANDIDATE_QUALIFICATIONS, COMPANY_SECTORS, JOB_STATUSES } from "@/common/enums";
+import { CANDIDATE_QUALIFICATIONS, COMPANY_SECTORS, JOB_STATUSES, EXPERIENCE_LEVELS } from "@/common/enums";
 
 export const updateJobSchema = z.object({
 
@@ -14,6 +14,10 @@ export const updateJobSchema = z.object({
   status: z.enum(JOB_STATUSES).optional(),
 
   vacancies: z.int().positive().optional(),
+
+  location: z.string().min(1).optional(),
+
+  experienceLevel: z.enum(EXPERIENCE_LEVELS).optional(),
 })
 .strict()
 .refine(data => Object.keys(data).length > 0, {

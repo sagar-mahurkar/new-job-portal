@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CANDIDATE_QUALIFICATIONS, COMPANY_SECTORS } from "@/common/enums";
+import { CANDIDATE_QUALIFICATIONS, COMPANY_SECTORS, EXPERIENCE_LEVELS } from "@/common/enums";
 export const createJobSchema = z.object({
   title: z.string().min(3),
   
@@ -10,6 +10,10 @@ export const createJobSchema = z.object({
   jobSector: z.enum(COMPANY_SECTORS),
   
   vacancies: z.int().positive(),
+
+  location: z.string().min(1),
+
+  experienceLevel: z.enum(EXPERIENCE_LEVELS)
 }).strict();
 
 export type CreateJobDto = z.infer<typeof createJobSchema>;

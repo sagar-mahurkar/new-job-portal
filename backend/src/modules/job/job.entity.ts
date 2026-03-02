@@ -18,6 +18,7 @@ import {
 } from "@/common/enums"
 import { Recruiter } from "@/modules/recruiter/recruiter.entity"
 import { Application } from "../application/application.entity";
+import { EXPERIENCE_LEVELS, ExperienceLevel } from "@/common/enums/experience-level.enum";
 
 @Entity({ name: "jobs", synchronize: true})
 export class Job {
@@ -44,6 +45,12 @@ export class Job {
 
   @Column({ default: 0 })
   applicantCount: number;
+
+  @Column()
+  location: string;
+
+  @Column({ type: "enum", enum: EXPERIENCE_LEVELS})
+  experienceLevel: ExperienceLevel;
 
   @CreateDateColumn({ type: "timestamptz"})
   createdAt: Date;

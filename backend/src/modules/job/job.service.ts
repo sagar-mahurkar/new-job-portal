@@ -12,6 +12,8 @@ export class JobService {
       minQualification: dto.minQualification,
       jobSector: dto.jobSector,
       vacancies: dto.vacancies,
+      location: dto.location,
+      experienceLevel: dto.experienceLevel,
       recruiterId,
     });
 

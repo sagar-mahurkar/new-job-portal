@@ -10,5 +10,7 @@ export const mapJobToResponse = (job: Job) => ({
   vacancies: job.vacancies,
   applicantCount: job.applicantCount,
   applications: job.applications,
+  location: job.location,
+  experienceLevel: job.experienceLevel,
   createdAt: job.createdAt,
 })
