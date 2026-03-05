@@ -60,13 +60,13 @@ app.get("/health", (_req, res) => {
 });
 
 // Route mounting
+app.use("/api/v1/jobs", publicJobRouter);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/jobs", jobRoutes);
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/candidate", candidateRoutes);
 app.use("/api/v1/recruiter", recruiterRoutes);
 app.use("/api/v1/applications", applicationRoutes);
-app.use("/api/v1/jobs", publicJobRouter);
 
 // 404 Not Found handler
 app.use((req, _res, next) => {
