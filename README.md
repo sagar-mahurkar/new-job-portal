@@ -1,110 +1,74 @@
-# Phase 0 – Frontend Project Foundation
+# Job Portal
 
-> Branch: `frontend-phase-0-project-foundation`
-> Parent branch: `main`
-> Status: Completed
+Full-stack job portal supporting **recruiters, candidates, and public job browsing**, built using **clean layered backend architecture** and **feature-based scalable frontend architecture**.
 
----
-
-## 🎯 Objective
-
-Establish a **production-grade frontend foundation** for the job portal application.
-
-This phase focuses on setting up the **core architecture and infrastructure** required for future feature development.
-
-This includes:
-
-* React project initialization
-* Feature-based folder architecture
-* Global API client setup
-* Authentication state management
-* Router architecture
-* Protected route guard
-* React Query infrastructure
-
-No business logic or UI features were implemented in this phase.
-
-All pages created in this phase are **placeholder pages used only to verify routing functionality**.
+The project is developed using **phased backend and frontend development**, where each phase introduces a well-defined capability.
 
 ---
 
-## 📦 Scope
+## 🚀 Tech Stack
 
-This phase establishes the **core frontend infrastructure** required for all upcoming phases.
+### Backend Stack
 
-The following systems were introduced:
+* Node.js
+* TypeScript
+* Express
+* PostgreSQL
+* TypeORM
+* Zod (v4)
+* JWT
+* Jest (Unit & Integration Testing)
 
-* Project initialization (Vite + React + TypeScript)
-* Global Axios API client
-* Authentication context
-* Custom auth hook
-* React Router architecture
-* Public and protected route structure
-* Route protection guard
-* React Query provider
+### Frontend Stack
+
+* React
+* Vite
+* TypeScript
+* React Router
+* Axios
+* React Query (TanStack Query)
+* Bootstrap
+* Bootstrap Icons
 
 ---
 
-## 🧱 Project Initialization
+## 🧱 Architecture Overview
 
-Frontend project created using **Vite with React + TypeScript**.
+### Backend Architecture
 
-Command used:
+Layered architecture:
 
 ```code
-npm create vite@latest frontend
+Entity → DTO → Repository → Service → Controller → Routes
 ```
 
-Configuration selected:
+Key principles:
 
-```text
-Framework: React
-Variant: TypeScript
-```
-
-Dependencies installed:
-
-```code
-npm install
-```
-
-Development server:
-
-```code
-npm run dev
-```
+* Authentication via JWT (OTP + password)
+* Role-based authorization via middleware
+* Public read-only API layer (no JWT required)
+* Ownership enforcement handled at service + repository level
+* Centralized error handling
+* Strict DTO validation using Zod
+* Response mapping to prevent sensitive data leakage
+* Explicit foreign key modeling for clean querying
+* Composite uniqueness constraints at DB level
+* Atomic DB updates where required (`increment`)
+* Controlled lifecycle transitions using domain guards
+* Aggregation handled at database level
+* Deterministic pagination metadata
+* SQL-level pagination (`limit` / `offset`)
+* Explicit projection for public APIs
+* Content-Type enforcement for non-GET routes
+* Deterministic integration test database lifecycle
 
 ---
 
-## 📦 Core Libraries Installed
+### Frontend Architecture
 
-The following libraries were added as part of the foundation.
+Feature-based architecture designed for **scalability and maintainability**.
 
 ```code
-react-router-dom
-axios
-bootstrap
-bootstrap-icons
-@tanstack/react-query
-```
-
-Purpose:
-
-| Library               | Purpose                               |
-| --------------------- | ------------------------------------- |
-| react-router-dom      | Client-side routing                   |
-| axios                 | HTTP client for backend communication |
-| bootstrap             | Base UI styling                       |
-| bootstrap-icons       | Icon set                              |
-| @tanstack/react-query | Server state management               |
-
----
-
-## 🗂 Folder Architecture
-
-The project uses **feature-based architecture** to ensure scalability.
-
-```text
 src
 ├ app
 │  ├ router
@@ -121,12 +85,6 @@ src
 │
 ├ features
 │  ├ auth
-│  │  ├ api
-│  │  ├ components
-│  │  ├ pages
-│  │  ├ hooks
-│  │  └ context
-│  │
 │  ├ candidate
 │  ├ recruiter
 │  └ jobs
@@ -137,379 +95,337 @@ src
 │  └ types
 ```
 
-Design principles:
+Frontend principles:
 
-* **Feature isolation**
-* **Centralized infrastructure**
-* **Reusable shared utilities**
-
----
-
-## 🌐 Axios API Client
-
-A centralized Axios client was implemented.
-
-File:
-
-```text
-src/api/axios.ts
-```
-
-Responsibilities:
-
-* Base API URL configuration
-* Default JSON headers
-* Automatic JWT token injection
-* Global error handling
-
-### Request Interceptor
-
-Purpose:
-
-Attach JWT token automatically.
-
-Token source:
-
-```text
-localStorage
-```
-
-Header added:
-
-```text
-Authorization: Bearer <token>
-```
+* Feature-based modular architecture
+* Centralized API client
+* Global authentication context
+* Public and protected route separation
+* Route guards for authenticated pages
+* React Query for server state management
+* Reusable shared utilities
+* Strict separation between infrastructure and features
 
 ---
 
-### Response Interceptor
+## 📦 Implemented Phases
 
-Purpose:
+### Backend
 
-Handle authentication failures globally.
+* Phase 0 – Foundation
+* Phase 1 – Authentication
+* Phase 2 – Authorization & Middleware
+* Phase 2.1 – Profile Management
+* Phase 3 – Job Posting (Recruiter)
+* Phase 3.1 – Job Management (Update/Delete)
+* Phase 3.2 – Testing & Hardening
+* Phase 4 – Job Application (Candidate)
+* Phase 4.1 – Application Management (Recruiter)
+* Phase 5 – Dashboards & Aggregation APIs
+* Phase 6 – Public Job Browsing APIs
 
-Behavior:
+### Frontend
 
-```text
-401 → remove token
-401 → redirect to login page
-```
+* Phase 0 – Project Foundation
 
----
-
-## 🔐 Authentication Context
-
-Global authentication state implemented using React Context.
-
-File:
-
-```text
-features/auth/context/AuthContext.tsx
-```
-
-Context exposes:
-
-```text
-token
-user
-login()
-logout()
-```
-
-### Token Persistence
-
-Token is restored on application startup.
-
-Flow:
-
-```text
-Application loads
-↓
-AuthProvider initializes
-↓
-localStorage token retrieved
-↓
-token restored into React state
-```
+> Detailed documentation for each phase exists in its respective branch.
 
 ---
 
-## 🪝 useAuth Hook
-
-A custom hook was implemented for accessing authentication state.
-
-File:
-
-```text
-features/auth/hooks/useAuth.ts
-```
-
-Responsibilities:
-
-* Access AuthContext
-* Enforce usage within AuthProvider
-* Simplify component access to auth state
-
-Usage example:
-
-```typescript
-const { token, logout } = useAuth()
-```
+## 🌐 API Routes
 
 ---
 
-## 🧭 Router Architecture
+### 🔐 Auth Routes
 
-Routing implemented using **React Router**.
-
-Router files:
-
-```text
-src/app/router
-```
-
-Structure:
-
-```text
-index.tsx
-PublicRoutes.tsx
-ProtectedRoutes.tsx
-ProtectedRoute.tsx
-```
+| Method | Endpoint                       |
+| ------ | ------------------------------ |
+| POST   | /api/v1/auth/signup/recruiter  |
+| POST   | /api/v1/auth/signup/candidate  |
+| POST   | /api/v1/auth/login/password    |
+| POST   | /api/v1/auth/login/otp/request |
+| POST   | /api/v1/auth/login/otp/resend  |
+| POST   | /api/v1/auth/login/otp/verify  |
 
 ---
 
-## 🌍 Router Entry
+### 🎓 Candidate Routes
 
-Main router entry point:
-
-```text
-src/app/router/index.tsx
-```
-
-Responsibilities:
-
-* Initialize `BrowserRouter`
-* Combine route groups
-
-Structure:
-
-```text
-BrowserRouter
-   Routes
-      PublicRoutes
-      ProtectedRoutes
-```
-
-Important rule:
-
-```text
-BrowserRouter appears only once in the application.
-```
+| Method | Endpoint                                 |
+| ------ | ---------------------------------------- |
+| GET    | /api/v1/candidate/me                     |
+| PATCH  | /api/v1/candidate/me                     |
+| GET    | /api/v1/candidate/dashboard              |
+| GET    | /api/v1/candidate/dashboard/applications |
 
 ---
 
-## 🌐 Public Routes
+### 🧑‍💼 Recruiter Routes
 
-File:
-
-```text
-PublicRoutes.tsx
-```
-
-Routes accessible **without authentication**.
-
-Example routes:
-
-```text
-/login/password
-/signup/candidate
-/signup/recruiter
-/login/otp/request
-/login/otp/verify
-/jobs
-/jobs/:id
-```
-
-These routes correspond to placeholder pages used to verify routing.
+| Method | Endpoint                                  |
+| ------ | ----------------------------------------- |
+| GET    | /api/v1/recruiter/me                      |
+| PATCH  | /api/v1/recruiter/me                      |
+| GET    | /api/v1/recruiter/jobs/:id/applications   |
+| PATCH  | /api/v1/recruiter/applications/:id/status |
+| GET    | /api/v1/recruiter/dashboard               |
+| GET    | /api/v1/recruiter/dashboard/overview      |
 
 ---
 
-## 🔒 Protected Routes
+### 👤 User Routes
 
-File:
-
-```text
-ProtectedRoutes.tsx
-```
-
-Routes requiring authentication.
-
-Example:
-
-```text
-/candidate/dashboard
-```
-
-Protected routes wrap pages with the route guard.
-
-Example structure:
-
-```text
-<Route
-  path="/candidate/dashboard"
-  element={
-    <ProtectedRoute>
-      <CandidateDashboardPage />
-    </ProtectedRoute>
-  }
-/>
-```
+| Method | Endpoint        |
+| ------ | --------------- |
+| GET    | /api/v1/user/me |
+| PATCH  | /api/v1/user/me |
+| DELETE | /api/v1/user/me |
 
 ---
 
-## 🛡 ProtectedRoute Guard
+### 💼 Job Routes
 
-File:
-
-```text
-ProtectedRoute.tsx
-```
-
-Purpose:
-
-Prevent unauthenticated users from accessing protected pages.
-
-Logic:
-
-```text
-read token using useAuth()
-
-if token exists
-   render children
-
-if token missing
-   redirect to login page
-```
-
-Redirect handled via:
-
-```text
-<Navigate />
-```
+| Method | Endpoint         |
+| ------ | ---------------- |
+| POST   | /api/v1/jobs     |
+| GET    | /api/v1/jobs/me  |
+| GET    | /api/v1/jobs/:id |
+| PATCH  | /api/v1/jobs/:id |
+| DELETE | /api/v1/jobs/:id |
 
 ---
 
-## ⚡ React Query Infrastructure
+### 📄 Application Routes
 
-React Query was introduced for **server state management**.
-
-Library:
-
-```text
-@tanstack/react-query
-```
-
-Provider implemented:
-
-```text
-app/providers/QueryProvider.tsx
-```
-
-Responsibilities:
-
-* Create `QueryClient`
-* Wrap application using `QueryClientProvider`
+| Method | Endpoint                   |
+| ------ | -------------------------- |
+| POST   | /api/v1/applications/apply |
+| GET    | /api/v1/applications/me    |
 
 ---
 
-## 🧩 Provider Composition
+### 🌍 Public Routes
 
-Application providers are composed at the root.
-
-Structure:
-
-```text
-<QueryProvider>
-   <AuthProvider>
-      <App />
-   </AuthProvider>
-</QueryProvider>
-```
-
-Purpose:
-
-* Global access to React Query
-* Global authentication state
+| Method | Endpoint             |
+| ------ | -------------------- |
+| GET    | /api/v1/jobs         |
+| GET    | /api/v1/jobs/filters |
+| GET    | /api/v1/jobs/:id     |
 
 ---
 
-## 🧪 Routing Verification
+## 🌍 Public Job Browsing
 
-Placeholder pages were created to verify routing behavior.
+Public APIs allow anyone to browse jobs without authentication.
 
-Pages include:
+Capabilities:
 
-* Auth pages
-* Candidate pages
-* Job pages
+* Browse OPEN job listings (paginated)
+* Search jobs (title + description)
+* Filter by sector, location, experience level
+* View job details
+* Fetch filter metadata
+* Deterministic ordering (`createdAt DESC`)
 
-These pages contain **minimal placeholder content only**.
+Public endpoints:
 
-Purpose:
+```code
+GET /api/v1/jobs
+GET /api/v1/jobs/:id
+GET /api/v1/jobs/filters
+```
 
-```text
-verify route resolution
-verify router structure
-verify protected route behavior
+Security guarantees:
+
+* Only `status = OPEN` jobs visible
+* Explicit column projection
+* No recruiter private data
+* Strict DTO validation
+* 404 returned for non-visible jobs
+
+---
+
+## 🎓 Candidate Capabilities
+
+Candidates can:
+
+* Sign up via OTP or password
+* Manage profile
+* Apply to jobs
+* View own applications
+* Access candidate dashboard
+
+Features:
+
+* One application per job enforced
+* Paginated applied jobs listing
+* Status distribution summary
+* Ownership enforcement
+
+---
+
+## 🧑‍💼 Recruiter Capabilities
+
+Recruiters can:
+
+* Create job postings
+* Update job details
+* Close/open job listings
+* Delete jobs
+* View applications for their jobs
+* Update application status
+* View recruiter dashboard analytics
+
+Features:
+
+* Ownership validation
+* Aggregated applicant metrics
+* Deterministic pagination
+* No cross-tenant data leakage
+
+---
+
+## 📊 Dashboards & Aggregation
+
+### Recruiter Dashboard
+
+* Total jobs (OPEN/CLOSED)
+* Total applications
+* Status breakdown
+* Per-job applicant counts
+
+### Candidate Dashboard
+
+* Application summary
+* Status distribution
+* Paginated applied jobs listing
+
+Aggregation rules:
+
+* All counting done at DB level
+* PostgreSQL `FILTER` used
+* Deterministic ordering
+* No JS-side aggregation
+
+---
+
+## 🔐 Security & Hardening
+
+Security measures include:
+
+* JWT verification middleware
+* Role-based access control
+* Ownership validation
+* Strict DTO validation
+* Content-Type enforcement
+* Centralized error handling
+* Sensitive field filtering
+* Duplicate application prevention
+* Controlled lifecycle transitions
+* Cross-tenant protection
+* Public API projection safety
+
+---
+
+## 🧪 Testing
+
+### Unit Testing
+
+* DTO validation
+* Service logic
+* Controller behavior
+* JWT middleware
+* Role middleware
+* Domain guards
+
+### Integration Testing
+
+* Auth flows
+* Profile flows
+* Job application flows
+* Recruiter management flows
+* Dashboard aggregations
+* Pagination metadata validation
+* Conflict and validation scenarios
+
+Testing stack:
+
+* Jest
+* Supertest
+* Dedicated test database
+* Deterministic schema reset
+
+---
+
+## 🏗️ Upcoming Work
+
+Planned improvements:
+
+* Frontend authentication UI
+* Job browsing UI
+* Application management UI
+* Advanced search & filtering
+* Performance indexing
+* CI pipeline integration
+* Full-text search support
+* Load testing
+
+---
+
+## ▶️ Running Locally
+
+Configure environment variables:
+
+```code
+environments/.env.staging
+```
+
+Install dependencies:
+
+```bash
+npm install
+```
+
+Run backend:
+
+```bash
+npm run dev
+```
+
+Run tests:
+
+```bash
+npm run test:unit
+npm run test:integration
+```
+
+Run frontend:
+
+```bash
+cd frontend
+npm install
+npm run dev
 ```
 
 ---
 
-## 🧠 Key Architectural Decisions
+## 📌 Project Status
 
-* Feature-based project architecture
-* Centralized Axios API client
-* Context-based authentication state
-* Custom hook for auth access
-* Separation of public and protected routes
-* Dedicated route guard component
-* Global server-state management via React Query
-* Single BrowserRouter instance
-* Placeholder pages used for structural validation
+Backend system is **fully implemented and stabilized through Phase 6**.
 
----
+Frontend **foundation architecture completed (Phase 0)**.
 
-## ❌ Explicitly Excluded
+Current capabilities include:
 
-This phase intentionally excludes:
+* Public job browsing
+* Role-based job posting
+* Controlled application lifecycle
+* Recruiter application management
+* Recruiter dashboards
+* Candidate dashboards
+* Deterministic pagination
+* Secure multi-tenant data access
+* Clean backend architecture
+* Scalable frontend foundation
 
-* Authentication UI implementation
-* Form validation logic
-* API integrations
-* Business logic
-* UI component development
-* Data fetching via React Query
-* Styling beyond base bootstrap
-
----
-
-## ✅ Phase Completion Criteria
-
-* React project initialized
-* Feature-based architecture implemented
-* Axios client configured
-* Authentication context implemented
-* Custom auth hook implemented
-* React Router architecture established
-* Public routes implemented
-* Protected routes implemented
-* Route guard implemented
-* React Query provider configured
-* Placeholder pages created
-* Router verified through manual testing
-* Phase merged into `main`
-
----
-
-> This document reflects the system state at the end of Phase 0 and remains frozen after merge.
+The project is now ready for **frontend feature development starting with authentication UI**.
