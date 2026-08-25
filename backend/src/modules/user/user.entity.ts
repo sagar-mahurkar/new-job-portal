@@ -35,10 +35,10 @@ export class User {
   isActive: boolean;
 
   @Column({ nullable: true })
-  loginOtp?: string;
+  loginOtp?: string | null;
 
   @Column({ type: "timestamptz", nullable: true })
-  loginOtpExpiresAt?: Date;
+  loginOtpExpiresAt?: Date | null;
 
   // @Column({ nullable: true })
   // emailVerificationOtp?: string; // (later)

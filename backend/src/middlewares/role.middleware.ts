@@ -4,8 +4,7 @@ import { HttpStatusCodes } from "@/common/constants/http.codes";
 
 export const requireRole =
   (...allowedRoles: Array<'RECRUITER' | 'CANDIDATE'>) =>
-  (req: Request, _res: Response, next: NextFunction) => {
-
+  (req: Request, _res: Response, next: NextFunction) => {    
     if (!req.user) {
       return next(
         new AppError("Unauthorized", HttpStatusCodes.UNAUTHORIZED)

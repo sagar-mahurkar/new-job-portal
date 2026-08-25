@@ -14,6 +14,8 @@ import * as fs from "fs/promises";
 import path from "path";
 import jwt from "jsonwebtoken";
 import { env } from "@/config/env.config";
+import sgMail from "@sendgrid/mail";
+
 export class AuthService {
   private transporter = MailTransporter.getInstance();
 
@@ -200,7 +202,7 @@ export class AuthService {
     };
 
     // 3. Prevent resending OTP if existing OTP is still valid
-    if (user.loginOtpExpiresAt > new Date()) {
+    if (user.loginOtpExpiresAt && user.loginOtpExpiresAt > new Date()) {
       throw new AppError(
         "OTP has already been sent", 
         HttpStatusCodes.TOO_MANY_REQUESTS
@@ -210,14 +212,19 @@ export class AuthService {
     // 4. Generate new one-time password (OTP)
     const otp = this.generateLoginOtp();
 
-    // 5. Store new OTP and expiry timestamp
+    // 5. send OTP via email/SMS
+    try {
+      await this.sendOtpEmail(user, otp);
+    } catch (err: any) {
+      console.log(err);
+      throw err;
+    }
+
+    // 6. Store new OTP and expiry timestamp
     const hashedOtp = await this.hashPasswordOrOtp(otp);
     user.loginOtp = hashedOtp;
     user.loginOtpExpiresAt = new Date(Date.now()  + 15 * 60 * 1000);
     await userRepository.save(user);
-
-    // 6. send OTP via email/SMS
-    await this.sendOtpEmail(user, otp);
 
     return;
   }
@@ -316,11 +323,17 @@ export class AuthService {
     const htmlContent = htmlTemplate
     .replace("{{ name }}", user.name)
     .replace("{{ otp }}", otp)
-    .replace("{{ content }}", "complete your login process")
-    await this.transporter.sendEmail(
-      user.email, 
-      "Job Portal - Your Login OTP", 
-      htmlContent
-    );
+    .replace("{{ context }}", "complete your login process")
+    try {
+      await this.transporter.sendEmail(
+        user.email, 
+        "Job Portal - Your Login OTP", 
+        htmlContent
+      );
+    } catch (err: any) {
+      console.error(err.response?.body);
+      console.error(err.response?.headers);
+      throw err;
+    }
   }
 }

@@ -62,7 +62,7 @@ app.get("/health", (_req, res) => {
 // Route mounting
 app.use("/api/v1/jobs", publicJobRouter);
 app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/jobs", jobRoutes);
+app.use("/api/v1/recruiter/jobs", jobRoutes);
 app.use("/api/v1/user", userRoutes)
 app.use("/api/v1/candidate", candidateRoutes);
 app.use("/api/v1/recruiter", recruiterRoutes);
