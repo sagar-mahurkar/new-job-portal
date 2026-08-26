@@ -10,7 +10,7 @@ export class CandidateDashboardController {
 
   static async getCandidateDashboardSummary(req: Request, res: Response, next: NextFunction){
     try {
-      const result = await CandidateDashboardController.candidateDashboardService.getCandidateDashboardSummary(req.user.id);
+      const result = await CandidateDashboardController.candidateDashboardService.getCandidateDashboardSummary(req.user!.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -25,7 +25,7 @@ export class CandidateDashboardController {
   static async getCandidateDashboardApplications(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = queryDashboardSchema.parse(req.query);
-      const result = await CandidateDashboardController.candidateDashboardService.getCandidateDashboardApplications(req.user.id, dto);
+      const result = await CandidateDashboardController.candidateDashboardService.getCandidateDashboardApplications(req.user!.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,

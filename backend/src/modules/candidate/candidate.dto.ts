@@ -1,6 +1,8 @@
 import { z } from "zod";
 import { CANDIDATE_QUALIFICATIONS, COMPANY_SECTORS } from "@/common/enums";
 
+const optionalUrl = z.url().or(z.literal(""));
+
 export const updateCandidateProfileSchema = z.object({
   // NO userId
   currentSector: z.enum(COMPANY_SECTORS).optional(),
@@ -11,13 +13,13 @@ export const updateCandidateProfileSchema = z.object({
 
   briefIntro: z.string().min(10).max(500).optional(),
 
-  resumeUrl: z.url().optional(),
+  resumeUrl: optionalUrl,
 
-  linkedinUrl: z.url().optional(),
+  linkedinUrl: optionalUrl,
 
-  githubUrl: z.url().optional(),
+  githubUrl: optionalUrl,
 
-  portfolioUrl: z.url().optional()
+  portfolioUrl: optionalUrl
 })
 .strict()
 .refine(data => Object.keys(data).length > 0,

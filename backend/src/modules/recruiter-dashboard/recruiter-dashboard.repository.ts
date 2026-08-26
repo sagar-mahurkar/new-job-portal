@@ -55,5 +55,26 @@ export const recruiterDashboardRepository = {
     ])
 
     return { rows, total }
+  },
+
+  getRecentApplications: async (
+    recruiterId: string,
+    limit: number = 5
+  ) => {
+    return applicationRepo
+      .createQueryBuilder("application")
+      .innerJoin("application.jobPosting", "job")
+      .innerJoin("application.candidate", "candidate")
+      .innerJoin("candidate.user", "user")
+      .where("job.recruiterId = :recruiterId", { recruiterId })
+      .select("application.id", "id")
+      .addSelect("application.status", "status")
+      .addSelect("application.createdAt", "appliedAt")
+      .addSelect("job.id", "jobId")
+      .addSelect("job.title", "jobTitle")
+      .addSelect("user.name", "candidateName")
+      .orderBy("application.createdAt", "DESC")
+      .limit(limit)
+      .getRawMany();
   }
 }

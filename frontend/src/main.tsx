@@ -1,17 +1,20 @@
+import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-
 import './index.css'
-import App from './App.tsx'
-
-import 'bootstrap/dist/css/bootstrap.min.css'
-import 'bootstrap-icons/font/bootstrap-icons.css'
-import { AuthProvider } from './features/auth/context/AuthContext.tsx'
-import { QueryProvider } from './app/providers/QueryProvider.tsx'
+import { RouterProvider } from 'react-router-dom'
+import { router } from './routes/appRouter'
+import { AuthProvider } from './modules/auth/context/AuthContext'
+import "bootstrap-icons/font/bootstrap-icons.css"
+import { AlertProvider } from './context/AlertContext'
+import { Alert } from './shared/components/Alert'
 
 createRoot(document.getElementById('root')!).render(
-  <QueryProvider>
+  <StrictMode>
     <AuthProvider>
-      <App />
+      <AlertProvider>
+        <Alert />
+        <RouterProvider router = {router} />
+      </AlertProvider>
     </AuthProvider>
-  </QueryProvider>,
+  </StrictMode>,
 )

@@ -12,8 +12,10 @@ export const mapApplicationToCandidateResponse = (application: Application) => (
 
 export const mapApplicationToRecruiterResponse = (application: Application) => ({
   id: application.id,
+  candidate: application.candidate.user,
   jobPostingId: application.jobPostingId,
   status: application.status,
   appliedAt: application.createdAt,
+  updatedAt: application.updatedAt,
   candidateProfile: mapCandidateToResponse(application.candidate)
 })

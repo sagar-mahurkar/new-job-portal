@@ -13,4 +13,7 @@ router.get("/", RecruiterDashboardController.getRecruiterDashboard)
 // get dashboard overview
 router.get("/overview", RecruiterDashboardController.getRecruiterOverview)
 
+// get recent applications
+router.get("/recent-applications", RecruiterDashboardController.getRecentApplications)
+
 export { router as recruiterDashboardRouter };

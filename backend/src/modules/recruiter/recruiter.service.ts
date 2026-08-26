@@ -6,6 +6,7 @@ import { jobRepository } from "@/modules/job/job.repository";
 import { applicationRepository } from "@/modules/application/application.repository";
 import { UpdateApplicationStatusDto } from "@/modules/application/dtos";
 import { isValidTransition } from "@/modules/application/application.lifecycle";
+import { UpdateJobStatusDto } from "../job/dtos/update-job-status.dto";
 export class RecruiterService {
   async getMe(userId: string){
     const recruiter = await recruiterRepository.findOne({
@@ -61,7 +62,21 @@ export class RecruiterService {
   async updateApplicationStatus(recruiterId: string, applicationId: string, dto: UpdateApplicationStatusDto) {
     const application = await applicationRepository.findById(applicationId);
 
+    if (!application) {
+      throw new AppError(
+        "Application not found",
+        HttpStatusCodes.NOT_FOUND
+      );
+    }
+
     const job = await jobRepository.findOneByJobId(application.jobPostingId);
+
+    if (!job) {
+      throw new AppError(
+        "Job not found",
+        HttpStatusCodes.NOT_FOUND
+      );
+    }
 
     if (job.recruiterId !== recruiterId) {
       throw new AppError("Application not found", HttpStatusCodes.NOT_FOUND);
@@ -72,5 +87,17 @@ export class RecruiterService {
     application.status = dto.status;
     await applicationRepository.save(application);
     return application;
+  }
+
+  async updateJobStatus(recruiterId: string, jobId: string, dto: UpdateJobStatusDto) {
+    const job = await jobRepository.findOneByJobIdAndRecruiterId(jobId, recruiterId);
+
+    if (!job) {
+      throw new AppError("Job not found", HttpStatusCodes.NOT_FOUND)
+    };
+
+    job.status = dto.status;
+    await jobRepository.save(job);
+    return job;
   }
 }

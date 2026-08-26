@@ -5,14 +5,13 @@ import { env } from "./config/env.config";
 import app from "./app"
 
 
-
 // Server bootstrap
 const startServer = async () => {
   try {
     await initDB();
 
     await MailTransporter.getInstance().init();
-    
+
     const PORT = env.PORT;
 
     app.listen(PORT, () => {

@@ -31,3 +31,12 @@ export const mapRecruiterJobDashboardResponse = (row: any) => {
     rejected: Number(row?.rejected ?? 0)
   }
 }
+
+export const mapRecentApplicationResponse = (application: any) => ({
+  id: application.id,
+  candidateName: application.candidateName,
+  jobId: application.jobId,
+  jobTitle: application.jobTitle,
+  status: application.status,
+  appliedAt: application.appliedAt,
+});

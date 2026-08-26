@@ -11,7 +11,7 @@ export class ApplicationController {
   static async applyForJob(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = createApplicationSchema.parse(req.body);
-      const application = await ApplicationController.applicationService.applyForJob(req.user.id, dto);
+      const application = await ApplicationController.applicationService.applyForJob(req.user!.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
@@ -25,7 +25,7 @@ export class ApplicationController {
 
   static async getAllApplicationsByCandidate(req: Request, res: Response, next: NextFunction) {
     try {
-      const applications = await ApplicationController.applicationService.getAllApplicationsByCandidate(req.user.id);
+      const applications = await ApplicationController.applicationService.getAllApplicationsByCandidate(req.user!.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,

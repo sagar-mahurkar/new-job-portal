@@ -20,6 +20,9 @@ router.get("/jobs/:id/applications", RecruiterController.getApplicationsByJob)
 // update application status
 router.patch("/applications/:id/status", RecruiterController.updateApplicationStatus)
 
+// update job status
+router.patch("/jobs/:id/status", RecruiterController.updateJobStatus)
+
 router.use("/dashboard", recruiterDashboardRouter);
 
 export default router;

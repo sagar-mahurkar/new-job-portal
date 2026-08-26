@@ -19,6 +19,14 @@ export const jobRepository = {
       }
     }),
 
+  findOneByJobIdAndRecruiterId: (id: string, recruiterId: string) => 
+    repo.findOne({
+      where: {
+        id,
+        recruiterId
+      }
+    }),
+
   // findOne
   findOneByJobId: (id: string) => 
     repo.findOne({
