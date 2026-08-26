@@ -1,4 +1,4 @@
-import nodemailer, { Transporter } from "nodemailer";
+import nodemailer from "nodemailer";
 import { env } from "./env.config";
 import { logger } from "./logger.config";
 import { AppError } from "@/common/errors/AppError";
@@ -9,6 +9,7 @@ export class MailTransporter {
   private transporter?: nodemailer.Transporter;
 
   private constructor() {}
+
 
   public static getInstance(): MailTransporter {
     if (!MailTransporter.instance) {
@@ -39,6 +40,9 @@ export class MailTransporter {
   private async verifyConnection(): Promise<void> {
     try {
       this.throwErrorIfNotInitialized();
+
+      await this.transporter!.verify();
+
       logger.info("Mail Transporter is ready to send emails");
     } catch (error) {
       logger.error("Mail Transporter connection failed: ", error);
@@ -56,10 +60,9 @@ export class MailTransporter {
   ): Promise<void> {
 
     this.throwErrorIfNotInitialized();
-    await this.transporter!.verify();
 
     try {
-      await this.transporter.sendMail({
+      await this.transporter!.sendMail({
         from: `"Job Portal" <${env.EMAIL}>`,
         to,
         subject,

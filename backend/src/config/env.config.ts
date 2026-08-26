@@ -21,13 +21,18 @@ const envSchema = z.object({
   POSTGRES_USERNAME: z.string().default("postgres"),
   POSTGRES_PASSWORD: z.string(),
   POSTGRES_DATABASE: z.string(),
-
+  
   PORT: z.coerce.number().default(8080),
+  HOST: z.string().default("0.0.0.0"),
 
+  SALT_ROUNDS: z.coerce.number().default(10),
+  JWT_EXPIRY: z.string().trim().default("1d"),
   JWT_SECRET: z.string().min(10),
 
-  EMAIL: z.email("Invalid email address").transform((val) => val.trim().toLowerCase()).optional(),
-  EMAIL_PASSWORD: z.string().length(16, "Must be exactly 16 characters").optional(),
+  EMAIL: z.email().toLowerCase(),
+  EMAIL_PASSWORD: z.string().length(16, "Must be exactly 16 characters"),
+
+  OTP_EXPIRY_MIN: z.coerce.number().default(15)
 });
 
 // Validate env
