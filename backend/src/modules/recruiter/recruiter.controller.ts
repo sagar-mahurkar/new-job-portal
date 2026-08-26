@@ -7,6 +7,9 @@ import { updateRecruiterProfileSchema, listJobApplicationsQuerySchema } from "./
 import { AppError } from "@/common/errors/AppError"
 import { mapApplicationToRecruiterResponse } from "@/modules/application/application.response";
 import { updateApplicationStatusSchema, getApplicationSchema } from "@/modules/application/dtos";
+import { updateJobStatusSchema } from "../job/dtos/update-job-status.dto";
+import { jobIdParamSchema } from "../job/dtos";
+import { mapJobToResponse } from "../job/job.response";
 
 export class RecruiterController {
 
@@ -14,7 +17,7 @@ export class RecruiterController {
 
   static async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const recruiter = await RecruiterController.recruiterService.getMe(req.user.id);
+      const recruiter = await RecruiterController.recruiterService.getMe(req.user!.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -35,7 +38,7 @@ export class RecruiterController {
           HttpStatusCodes.BAD_REQUEST
         );
       }
-      const recruiter = await RecruiterController.recruiterService.updateMe(req.user.id, dto);
+      const recruiter = await RecruiterController.recruiterService.updateMe(req.user!.id, dto);
       sendSuccessResponse(
         res, 
         HttpStatusCodes.OK,
@@ -52,7 +55,7 @@ export class RecruiterController {
   static async getApplicationsByJob(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = listJobApplicationsQuerySchema.parse({...req.params, ...req.query})
-      const result = await RecruiterController.recruiterService.getApplicationsByJob(req.user.id, dto)
+      const result = await RecruiterController.recruiterService.getApplicationsByJob(req.user!.id, dto)
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -71,13 +74,31 @@ export class RecruiterController {
     try {
       const params = getApplicationSchema.parse(req.params)
       const dto = updateApplicationStatusSchema.parse(req.body);
-      const application = await RecruiterController.recruiterService.updateApplicationStatus(req.user.id, params.id, dto);
-    sendSuccessResponse(
-      res,
-      HttpStatusCodes.OK,
-      mapApplicationToRecruiterResponse(application),
-      "Status updated successfully"
-    )
+      const application = await RecruiterController.recruiterService.updateApplicationStatus(req.user!.id, params.id, dto);
+      
+      sendSuccessResponse(
+        res,
+        HttpStatusCodes.OK,
+        mapApplicationToRecruiterResponse(application),
+        "Status updated successfully"
+      )
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async updateJobStatus(req: Request, res: Response, next: NextFunction) {
+    try {
+      const params = jobIdParamSchema.parse(req.params)
+      const dto = updateJobStatusSchema.parse(req.body);
+      const job = await RecruiterController.recruiterService.updateJobStatus(req.user!.id, params.id, dto);
+      
+      sendSuccessResponse(
+        res,
+        HttpStatusCodes.OK,
+        mapJobToResponse(job),
+        "Status updated successfully"
+      )
     } catch (err) {
       next(err);
     }

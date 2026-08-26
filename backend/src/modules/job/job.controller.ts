@@ -12,7 +12,7 @@ export class JobController {
   static async createJob(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = createJobSchema.parse(req.body);
-      const job = await JobController.jobService.createJob(req.user.id, dto);
+      const job = await JobController.jobService.createJob(req.user!.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.CREATED,
@@ -27,7 +27,7 @@ export class JobController {
   static async getMyJobs(req: Request, res: Response, next: NextFunction) {
     try {
       const dto = getMyJobsSchema.parse(req.params);
-      const jobs = await JobController.jobService.getMyJobs(req.user.id, dto);
+      const jobs = await JobController.jobService.getMyJobs(req.user!.id, dto);
       sendSuccessResponse(
         res, 
         HttpStatusCodes.OK,
@@ -42,7 +42,7 @@ export class JobController {
   static async getJobById(req: Request, res: Response, next: NextFunction) {
     try {
       const params = jobIdParamSchema.parse(req.params)
-      const job = await JobController.jobService.getJobById(req.user.id, params.id);
+      const job = await JobController.jobService.getJobById(req.user!.id, params.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -58,7 +58,7 @@ export class JobController {
     try {
       const params = jobIdParamSchema.parse(req.params);
       const dto = updateJobSchema.parse(req.body);
-      const job = await JobController.jobService.updateJob(req.user.id, params.id, dto);
+      const job = await JobController.jobService.updateJob(req.user!.id, params.id, dto);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -73,7 +73,7 @@ export class JobController {
   static async deleteJob(req: Request, res: Response, next: NextFunction) {
     try {
       const params = jobIdParamSchema.parse(req.params);
-      await JobController.jobService.deleteJob(req.user.id, params.id);
+      await JobController.jobService.deleteJob(req.user!.id, params.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,

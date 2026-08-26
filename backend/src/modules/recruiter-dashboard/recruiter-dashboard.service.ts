@@ -17,4 +17,8 @@ export class RecruiterDashboardService {
     
     return { rows, total, page, limit, totalPages }
   }
+
+  async getRecentApplications(recruiterId: string, limit: number = 5) {
+    return recruiterDashboardRepository.getRecentApplications(recruiterId, limit);
+  }
 }
