@@ -11,11 +11,15 @@ export const mapCandidateDashboardSummaryResponse = ( summary: any) => {
 
 export const mapCandidateDashboardApplicationsResponse = ( row: any ) => {
   return {
-    jobId: row.jobId,
-    title: row.title,
+    jobId: row.jobPosting.id,
+    companyName: row.jobPosting.recruiter.companyName,
+    title: row.jobPosting.title,
     status: row.status,
-    appliedAt: row.appliedAt
-      ? new Date(row.appliedAt).toISOString()
+    appliedAt: row.createdAt
+      ? new Date(row.createdAt).toISOString()
+      :null,
+    updatedAt: row.updatedAt
+      ? new Date(row.updatedAt).toISOString()
       :null
   }
 }

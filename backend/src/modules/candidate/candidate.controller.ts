@@ -11,7 +11,7 @@ export class CandidateController {
 
   static async getMe(req: Request, res: Response, next: NextFunction) {
     try {
-      const candidate = await CandidateController.candidateService.getMe(req.user.id);
+      const candidate = await CandidateController.candidateService.getMe(req.user!.id);
       sendSuccessResponse(
         res,
         HttpStatusCodes.OK,
@@ -32,7 +32,7 @@ export class CandidateController {
           HttpStatusCodes.BAD_REQUEST
         );
       }
-      const candidate = await CandidateController.candidateService.updateMe(req.user.id, dto);
+      const candidate = await CandidateController.candidateService.updateMe(req.user!.id, dto);
       sendSuccessResponse(
         res, 
         HttpStatusCodes.OK,

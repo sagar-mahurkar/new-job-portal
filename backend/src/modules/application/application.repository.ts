@@ -28,7 +28,11 @@ export const applicationRepository = {
   ) => {
     const [data, total] = await repo.findAndCount({
       where: { jobPostingId },
-      relations: { candidate: true },
+      relations: { 
+        candidate: {
+          user: true
+        } 
+      },
       skip: (page - 1) * limit,
       take: limit,
       order: { createdAt: "DESC" }

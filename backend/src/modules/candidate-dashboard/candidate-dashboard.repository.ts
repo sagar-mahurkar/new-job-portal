@@ -22,17 +22,13 @@ export const candidateDashboardRepository = {
   ) => {
     const [rows, total] = await Promise.all([
       applicationRepo.createQueryBuilder("application")
-        .innerJoin("application.jobPosting", "job")
-        .select("application.id", "id")
-        .addSelect("application.status", "status")
-        .addSelect("application.createdAt", "appliedAt")
-        .addSelect("job.id", "jobId")
-        .addSelect("job.title", "title")
+        .innerJoinAndSelect("application.jobPosting", "job")
+        .innerJoinAndSelect("job.recruiter", "recruiter")
         .where("application.candidateId = :candidateId", { candidateId })
         .orderBy("application.createdAt", "DESC")
         .limit(limit)
         .offset((page - 1) * limit)
-        .getRawMany()
+        .getMany()
       ,
 
       applicationRepo.count({ where: { candidateId } })
